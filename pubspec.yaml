@@ -1,0 +1,52 @@
+name: construct
+description: "A new Flutter project."
+
+# Prevent accidental publishing to pub.dev.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.1
+
+dependencies:
+  cached_network_image: ^3.4.1
+  dart_extensions: ^2.2.4
+  dio: ^5.8.0+1
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  flutter_secure_storage: ^4.2.1
+  flutter_svg: ^2.1.0
+  freezed_annotation: ^3.0.0
+  http: ^1.4.0
+  intl: ^0.19.0
+  json_annotation: ^4.9.0
+  mask_text_input_formatter: ^2.9.0
+  riverpod_annotation: ^2.6.1
+  web_socket_channel: ^3.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  freezed: ^3.0.6
+  flutter_lints: ^5.0.0
+  custom_lint: ^0.7.5
+  riverpod_lint: ^2.6.5
+  riverpod_generator: ^2.6.5
+  build_runner: ^2.4.15
+  json_serializable: ^6.9.5
+
+flutter:
+  uses-material-design: true
+
+  # Enable generation of localized Strings from arb files.
+  # generate: false
+
+  assets:
+    # Add assets from the images directory to the application.
+    - assets/images/
+flutter_intl:
+  enabled: true
