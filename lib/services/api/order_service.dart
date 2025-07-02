@@ -92,6 +92,17 @@ class OrderService {
     }
   }
 
+  Future<void> updateOrderStatus(String orderId, {String? status}) async {
+    try {
+      await _api.put(
+        '/orders/$orderId/status',
+        data: {'status': status},
+      );
+    } on DioException catch (e) {
+      throw _handleApiError(e);
+    }
+  }
+
   // Обработчик ошибок API
   ApiFailure _handleApiError(DioException e) {
     if (e.error is ApiFailure) return e.error as ApiFailure;

@@ -1,6 +1,7 @@
 import 'package:construct/domain/entities/order/order.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/presentation/screens/order_detail/order_detail_view.dart';
+import 'package:construct/presentation/screens/user/user_view.dart';
 import 'package:construct/presentation/widgets/order_card.dart';
 import 'package:construct/presentation/widgets/radio_widget.dart';
 import 'package:construct/services/api/order_service.dart';
@@ -23,16 +24,20 @@ class _OrdersViewState extends ConsumerState<OrdersView> {
   final List<Order> sortedOrders = [];
 
   Future<void> getMe() async {
-    user = await ref.read(userServiceProvider).getMe();
-    setState(() {});
+    try {
+      user = await ref.read(userServiceProvider).getMe();
+      setState(() {});
+    } catch (_) {}
   }
 
   Future<void> loadOrders() async {
-    final data = await ref.read(orderServiceProvider).getConnected();
-    setState(() {
-      orders.addAll(data);
-      sortedOrders.addAll(data);
-    });
+    try {
+      final data = await ref.read(orderServiceProvider).getConnected();
+      setState(() {
+        orders.addAll(data);
+        sortedOrders.addAll(data);
+      });
+    } catch (_) {}
   }
 
   List<Order> sortOrders(List<Order> orders, String sort) {
@@ -78,9 +83,13 @@ class _OrdersViewState extends ConsumerState<OrdersView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: Colors.white,
+                      InkWell(
+                        onTap: () =>
+                            Navigator.of(context).pushNamed(UserView.routeName),
+                        child: CircleAvatar(
+                          radius: 22,
+                          backgroundColor: Colors.white,
+                        ),
                       ),
                       Spacer(),
                       ConstrainedBox(

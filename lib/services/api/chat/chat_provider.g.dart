@@ -159,7 +159,7 @@ class _ChatUpdateStreamProviderElement
   String get token => (origin as ChatUpdateStreamProvider).token;
 }
 
-String _$chatMessagesHash() => r'3856af5dc86ad975fe6faeeae31a531c083682de';
+String _$chatMessagesHash() => r'7c437b8179b685eeabe8499da7f5c1c4dbc6f23c';
 
 /// See also [ChatMessages].
 @ProviderFor(ChatMessages)
@@ -174,14 +174,16 @@ final chatMessagesProvider = AutoDisposeNotifierProvider<ChatMessages,
 );
 
 typedef _$ChatMessages = AutoDisposeNotifier<List<ChatMessageResponse>>;
-String _$chatControllerHash() => r'31c53ad8d6e1fed19ee6c70f23278150bfd2ba0d';
+String _$chatControllerHash() => r'a3402d480165baa7642b57e814b0e96f2ef804d3';
 
 abstract class _$ChatController
     extends BuildlessAutoDisposeAsyncNotifier<void> {
   late final String token;
+  late final String partnerId;
 
   FutureOr<void> build(
     String token,
+    String partnerId,
   );
 }
 
@@ -197,9 +199,11 @@ class ChatControllerFamily extends Family<AsyncValue<void>> {
   /// See also [ChatController].
   ChatControllerProvider call(
     String token,
+    String partnerId,
   ) {
     return ChatControllerProvider(
       token,
+      partnerId,
     );
   }
 
@@ -209,6 +213,7 @@ class ChatControllerFamily extends Family<AsyncValue<void>> {
   ) {
     return call(
       provider.token,
+      provider.partnerId,
     );
   }
 
@@ -233,8 +238,11 @@ class ChatControllerProvider
   /// See also [ChatController].
   ChatControllerProvider(
     String token,
+    String partnerId,
   ) : this._internal(
-          () => ChatController()..token = token,
+          () => ChatController()
+            ..token = token
+            ..partnerId = partnerId,
           from: chatControllerProvider,
           name: r'chatControllerProvider',
           debugGetCreateSourceHash:
@@ -245,6 +253,7 @@ class ChatControllerProvider
           allTransitiveDependencies:
               ChatControllerFamily._allTransitiveDependencies,
           token: token,
+          partnerId: partnerId,
         );
 
   ChatControllerProvider._internal(
@@ -255,9 +264,11 @@ class ChatControllerProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.token,
+    required this.partnerId,
   }) : super.internal();
 
   final String token;
+  final String partnerId;
 
   @override
   FutureOr<void> runNotifierBuild(
@@ -265,6 +276,7 @@ class ChatControllerProvider
   ) {
     return notifier.build(
       token,
+      partnerId,
     );
   }
 
@@ -273,13 +285,16 @@ class ChatControllerProvider
     return ProviderOverride(
       origin: this,
       override: ChatControllerProvider._internal(
-        () => create()..token = token,
+        () => create()
+          ..token = token
+          ..partnerId = partnerId,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         token: token,
+        partnerId: partnerId,
       ),
     );
   }
@@ -292,13 +307,16 @@ class ChatControllerProvider
 
   @override
   bool operator ==(Object other) {
-    return other is ChatControllerProvider && other.token == token;
+    return other is ChatControllerProvider &&
+        other.token == token &&
+        other.partnerId == partnerId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, token.hashCode);
+    hash = _SystemHash.combine(hash, partnerId.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -309,6 +327,9 @@ class ChatControllerProvider
 mixin ChatControllerRef on AutoDisposeAsyncNotifierProviderRef<void> {
   /// The parameter `token` of this provider.
   String get token;
+
+  /// The parameter `partnerId` of this provider.
+  String get partnerId;
 }
 
 class _ChatControllerProviderElement
@@ -318,6 +339,8 @@ class _ChatControllerProviderElement
 
   @override
   String get token => (origin as ChatControllerProvider).token;
+  @override
+  String get partnerId => (origin as ChatControllerProvider).partnerId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

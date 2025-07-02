@@ -1,5 +1,6 @@
 import 'package:construct/domain/failures/api_failure.dart';
 import 'package:construct/services/api_error_handler.dart';
+import 'package:construct/services/auth_state_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:construct/services/api/api_service.dart';
@@ -22,6 +23,7 @@ class AuthService {
         '/auth/token',
         queryParameters: {'phone': phone, 'password': password},
       );
+      _ref.read(authStateProvider.notifier).state = AuthState.authenticated;
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleApiError(e);
@@ -38,6 +40,7 @@ class AuthService {
           '/auth/logout',
           options: Options(headers: {'Refresh-Token': refreshToken}),
         );
+        _ref.read(authStateProvider.notifier).state = AuthState.unauthenticated;
       } catch (_) {}
     }
 

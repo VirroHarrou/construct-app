@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:construct/domain/entities/chat/message/message.dart';
 import 'package:construct/domain/entities/chat/message_action/chat_message_action.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,14 +15,16 @@ class ChatService {
 
   void sendAction(ChatMessageAction action) {
     final json = action.toJson();
-    channel.sink.add(json);
+    final jsonString = jsonEncode(json);
+    channel.sink.add(jsonString);
   }
 
-  Stream<ChatMessageResponse> get messageStream => channel.stream
-          .where((data) => data is Map<String, dynamic>)
-          .map((data) =>
-              ChatMessageResponse.fromJson(data as Map<String, dynamic>))
-          .handleError((error) {
+  Stream<ChatMessageResponse> get messageStream => channel.stream.map((data) {
+        final json = jsonDecode(data);
+        // print('${json.runtimeType} $json');
+        // print(json['id']);
+        return ChatMessageResponse.fromJson(json as Map<String, dynamic>);
+      }).handleError((error) {
         print('WebSocket error: $error');
       });
 
@@ -31,7 +35,7 @@ class ChatService {
 
 @riverpod
 WebSocketChannel webSocketChannel(Ref ref, String token) {
-  final uri = Uri.parse('ws://your-api-url/ws/chat?token=$token');
+  final uri = Uri.parse('wss://condstruct.ru/ws/chat?token=$token');
   final channel = WebSocketChannel.connect(uri);
 
   ref.onDispose(() {

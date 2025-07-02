@@ -9,13 +9,13 @@ part 'message.g.dart';
 sealed class ChatMessageResponse with _$ChatMessageResponse {
   const factory ChatMessageResponse({
     required String id,
-    @JsonKey(name: 'message') required String content,
-    required DateTime createdAt,
-    required DateTime? updatedAt,
-    required bool isEdited,
-    required bool isDeleted,
-    required String senderId,
-    required String recipientId,
+    required String content,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime? updatedAt,
+    @JsonKey(name: 'is_edited') required bool isEdited,
+    @JsonKey(name: 'is_deleted') required bool isDeleted,
+    @JsonKey(name: 'sender_id') required String senderId,
+    @JsonKey(name: 'recipient_id') required String recipientId,
   }) = _ChatMessageResponse;
 
   factory ChatMessageResponse.fromJson(Map<String, dynamic> json) =>

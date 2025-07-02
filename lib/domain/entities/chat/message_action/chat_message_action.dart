@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'chat_message_action.freezed.dart';
@@ -7,9 +9,9 @@ part 'chat_message_action.g.dart';
 sealed class ChatMessageAction with _$ChatMessageAction {
   const factory ChatMessageAction({
     required String action,
-    String? messageId,
+    @JsonKey(name: 'message_id') String? messageId,
     String? content,
-    String? recipientId,
+    @JsonKey(name: 'recipient_id') String? recipientId,
   }) = _ChatMessageAction;
 
   factory ChatMessageAction.fromJson(Map<String, dynamic> json) =>
@@ -17,7 +19,7 @@ sealed class ChatMessageAction with _$ChatMessageAction {
 
   factory ChatMessageAction.send({
     required String content,
-    required String recipientId,
+    @JsonKey(name: 'recipient_id') required String recipientId,
   }) =>
       ChatMessageAction(
         action: 'send',
@@ -26,7 +28,7 @@ sealed class ChatMessageAction with _$ChatMessageAction {
       );
 
   factory ChatMessageAction.edit({
-    required String messageId,
+    @JsonKey(name: 'message_id') required String messageId,
     required String content,
   }) =>
       ChatMessageAction(
@@ -36,7 +38,7 @@ sealed class ChatMessageAction with _$ChatMessageAction {
       );
 
   factory ChatMessageAction.delete({
-    required String messageId,
+    @JsonKey(name: 'message_id') required String messageId,
   }) =>
       ChatMessageAction(
         action: 'delete',

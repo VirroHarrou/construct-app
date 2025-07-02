@@ -6,7 +6,7 @@ part of 'chat_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$webSocketChannelHash() => r'e12c9b6333c636e5283092677afb8366d3b2aac1';
+String _$webSocketChannelHash() => r'9b492e39770b0c9659ba3fbc4e5f308d34bc3cee';
 
 /// Copied from Dart SDK
 class _SystemHash {

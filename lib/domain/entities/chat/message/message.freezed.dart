@@ -16,13 +16,18 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatMessageResponse {
   String get id;
-  @JsonKey(name: 'message')
   String get content;
+  @JsonKey(name: 'created_at')
   DateTime get createdAt;
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt;
+  @JsonKey(name: 'is_edited')
   bool get isEdited;
+  @JsonKey(name: 'is_deleted')
   bool get isDeleted;
+  @JsonKey(name: 'sender_id')
   String get senderId;
+  @JsonKey(name: 'recipient_id')
   String get recipientId;
 
   /// Serializes this ChatMessageResponse to a JSON map.
@@ -65,32 +70,37 @@ mixin _$ChatMessageResponse {
 class _ChatMessageResponse implements ChatMessageResponse {
   const _ChatMessageResponse(
       {required this.id,
-      @JsonKey(name: 'message') required this.content,
-      required this.createdAt,
-      required this.updatedAt,
-      required this.isEdited,
-      required this.isDeleted,
-      required this.senderId,
-      required this.recipientId});
+      required this.content,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'updated_at') required this.updatedAt,
+      @JsonKey(name: 'is_edited') required this.isEdited,
+      @JsonKey(name: 'is_deleted') required this.isDeleted,
+      @JsonKey(name: 'sender_id') required this.senderId,
+      @JsonKey(name: 'recipient_id') required this.recipientId});
   factory _ChatMessageResponse.fromJson(Map<String, dynamic> json) =>
       _$ChatMessageResponseFromJson(json);
 
   @override
   final String id;
   @override
-  @JsonKey(name: 'message')
   final String content;
   @override
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
+  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
   @override
+  @JsonKey(name: 'is_edited')
   final bool isEdited;
   @override
+  @JsonKey(name: 'is_deleted')
   final bool isDeleted;
   @override
+  @JsonKey(name: 'sender_id')
   final String senderId;
   @override
+  @JsonKey(name: 'recipient_id')
   final String recipientId;
 
   @override

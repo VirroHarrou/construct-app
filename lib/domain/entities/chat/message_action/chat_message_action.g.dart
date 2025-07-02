@@ -9,15 +9,15 @@ part of 'chat_message_action.dart';
 _ChatMessageAction _$ChatMessageActionFromJson(Map<String, dynamic> json) =>
     _ChatMessageAction(
       action: json['action'] as String,
-      messageId: json['messageId'] as String?,
+      messageId: json['message_id'] as String?,
       content: json['content'] as String?,
-      recipientId: json['recipientId'] as String?,
+      recipientId: json['recipient_id'] as String?,
     );
 
 Map<String, dynamic> _$ChatMessageActionToJson(_ChatMessageAction instance) =>
     <String, dynamic>{
       'action': instance.action,
-      'messageId': instance.messageId,
+      'message_id': instance.messageId,
       'content': instance.content,
-      'recipientId': instance.recipientId,
+      'recipient_id': instance.recipientId,
     };

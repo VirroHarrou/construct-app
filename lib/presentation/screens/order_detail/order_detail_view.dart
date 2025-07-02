@@ -1,5 +1,6 @@
 import 'package:construct/domain/entities/order/order.dart';
 import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/presentation/screens/chat/chat_detail_view.dart';
 import 'package:construct/services/api/order_service.dart';
 import 'package:construct/services/api/user_service.dart';
 import 'package:dart_extensions/dart_extensions.dart';
@@ -18,7 +19,10 @@ class OrderDetailView extends ConsumerStatefulWidget {
 }
 
 class _OrderDetailViewState extends ConsumerState<OrderDetailView> {
+  final TextEditingController _reviewController = TextEditingController();
+  final FocusNode _textFieldFocusNode = FocusNode();
   bool showFull = false;
+  bool isAwait = false;
   User? user;
 
   Future<void> initWidget() async {
@@ -161,8 +165,9 @@ class _OrderDetailViewState extends ConsumerState<OrderDetailView> {
                     ),
                     if (user != null) ...[
                       InkWell(
-                        //Todo: add route user chat
-                        onTap: () => Navigator.of(context).pushNamed(''),
+                        onTap: () => Navigator.of(context).pushNamed(
+                            ChatDetailView.routeName,
+                            arguments: user as User),
                         child: Row(
                           spacing: 10,
                           children: [
@@ -186,14 +191,13 @@ class _OrderDetailViewState extends ConsumerState<OrderDetailView> {
                       Text(showFull
                           ? widget.order.description!
                           : "${widget.order.description!.characters.take(197).string}..."),
-                      if (widget.order.description!.length > 200 &&
-                          !showFull) ...[
+                      if (widget.order.description!.length > 200) ...[
                         InkWell(
                           onTap: () => setState(() {
-                            showFull = true;
+                            showFull = !showFull;
                           }),
                           child: Text(
-                            'Читать больше',
+                            showFull ? 'Свернуть' : 'Читать больше',
                             style: TextStyle(
                               color: colorScheme.primary,
                               fontWeight: FontWeight.w500,
@@ -202,29 +206,68 @@ class _OrderDetailViewState extends ConsumerState<OrderDetailView> {
                         )
                       ]
                     ],
-                    ElevatedButton(
-                      onPressed: () => {},
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 30,
-                          ),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(26))),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text(
-                            'Откликнуться',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: Colors.white,
+                    if (user?.id != widget.order.userId)
+                      ElevatedButton(
+                        onPressed: isAwait
+                            ? null
+                            : () async {
+                                try {
+                                  await ref
+                                      .read(orderServiceProvider)
+                                      .updateOrderStatus(widget.order.id,
+                                          status: 'ожидание');
+                                  isAwait = true;
+                                } catch (_) {}
+                              },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 30,
                             ),
-                          ),
-                        ],
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(26))),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              'Откликнуться',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                    TextField(
+                      focusNode: _textFieldFocusNode,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      controller: _reviewController,
+                      decoration: InputDecoration(
+                        hintText: 'Оставить отзыв...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: colorScheme.primary,
+                            width: 0.5,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: colorScheme.primary,
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                      maxLines: 5,
+                      minLines: 1,
+                      onSubmitted: (content) => {},
                     ),
                   ],
                 ),

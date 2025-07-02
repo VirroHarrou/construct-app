@@ -16,8 +16,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatMessageAction {
   String get action;
+  @JsonKey(name: 'message_id')
   String? get messageId;
   String? get content;
+  @JsonKey(name: 'recipient_id')
   String? get recipientId;
 
   /// Serializes this ChatMessageAction to a JSON map.
@@ -51,17 +53,22 @@ mixin _$ChatMessageAction {
 @JsonSerializable()
 class _ChatMessageAction implements ChatMessageAction {
   const _ChatMessageAction(
-      {required this.action, this.messageId, this.content, this.recipientId});
+      {required this.action,
+      @JsonKey(name: 'message_id') this.messageId,
+      this.content,
+      @JsonKey(name: 'recipient_id') this.recipientId});
   factory _ChatMessageAction.fromJson(Map<String, dynamic> json) =>
       _$ChatMessageActionFromJson(json);
 
   @override
   final String action;
   @override
+  @JsonKey(name: 'message_id')
   final String? messageId;
   @override
   final String? content;
   @override
+  @JsonKey(name: 'recipient_id')
   final String? recipientId;
 
   @override

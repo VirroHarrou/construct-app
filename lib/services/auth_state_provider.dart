@@ -5,6 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final authStateProvider =
     StateProvider<AuthState>((ref) => AuthState.authenticated);
 
+final navigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
+  return GlobalKey<NavigatorState>();
+});
+
 enum AuthState {
   authenticated,
   unauthenticated,
@@ -16,10 +20,12 @@ class SessionExpiredHandler {
 
   SessionExpiredHandler(this.ref);
 
-  void handleSessionExpired(BuildContext context) {
+  void handleSessionExpired() {
     ref.listen<AuthState>(authStateProvider, (_, state) {
-      if (state == AuthState.sessionExpired) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
+      if (state == AuthState.sessionExpired ||
+          state == AuthState.unauthenticated) {
+        final navigatorKey = ref.read(navigatorKeyProvider);
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
           HelloView.routeName,
           (route) => false,
         );
