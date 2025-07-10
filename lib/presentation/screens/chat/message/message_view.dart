@@ -1,5 +1,6 @@
 import 'package:construct/core/utils/compare_time.dart';
 import 'package:construct/domain/entities/chat/message/message.dart';
+import 'package:construct/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class MessageView extends StatelessWidget {
@@ -80,7 +81,7 @@ class MessageView extends StatelessWidget {
         if (showTime) ...[
           const SizedBox(height: 10),
           Text(
-            getComparedTime(messageResponse.createdAt),
+            getComparedTime(messageResponse.createdAt, S.of(context)),
             style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 12,

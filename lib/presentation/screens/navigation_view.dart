@@ -1,7 +1,9 @@
+import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/chat/chat_view.dart';
 import 'package:construct/presentation/screens/main/main_view.dart';
 import 'package:construct/presentation/screens/orders/orders_view.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class NavigationView extends StatefulWidget {
   const NavigationView({super.key, this.index});
@@ -44,59 +46,82 @@ class _NavigationViewState extends State<NavigationView> {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: screens[currentIndex],
-      floatingActionButton: Container(
-        height: 80,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(20),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: FloatingActionButton(
+              onPressed: () async {
+                if (await canLaunchUrlString('https://t.me/opaantoha')) {
+                  await launchUrlString('https://t.me/opaantoha');
+                }
+              },
+              shape: CircleBorder(),
+              backgroundColor: colorScheme.primary,
+              child: Icon(
+                Icons.question_mark,
+                size: 32,
+              ),
+            ),
+          ),
+          Container(
+            height: 80,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(20),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: .1),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        )
+                      ],
+                    ),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: .1),
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                    )
-                  ],
                 ),
-              ),
-            ),
-            Positioned(
-              left: 10,
-              right: 10,
-              top: 7,
-              child: AnimatedAlign(
-                alignment: _activeAlignment,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colorScheme.primary,
+                Positioned(
+                  left: 10,
+                  right: 10,
+                  top: 7,
+                  child: AnimatedAlign(
+                    alignment: _activeAlignment,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorScheme.primary,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                Positioned.fill(
+                  bottom: 5,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildButton(
+                          0, Icons.shopping_cart, S.of(context).orders),
+                      _buildButton(1, Icons.house, S.of(context).main),
+                      _buildButton(2, Icons.messenger, S.of(context).chats),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Positioned.fill(
-              bottom: 5,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildButton(0, Icons.shopping_cart, "Заказы"),
-                  _buildButton(1, Icons.house, "Главная"),
-                  _buildButton(2, Icons.messenger, "Чаты"),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );

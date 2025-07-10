@@ -29,9 +29,9 @@ class ReviewService {
   }
 
   // Получить отзывы для заказа
-  Future<List<Review>> getOrderReviews(String orderId) async {
+  Future<List<Review>> getRecepientReviews(String userId) async {
     try {
-      final response = await _api.get('/orders/$orderId/reviews');
+      final response = await _api.get('/reviews/$userId');
       return (response.data as List).map((e) => Review.fromJson(e)).toList();
     } on DioException catch (e) {
       throw _handleApiError(e);

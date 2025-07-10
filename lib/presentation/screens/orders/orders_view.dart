@@ -68,92 +68,7 @@ class _OrdersViewState extends ConsumerState<OrdersView> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            toolbarHeight: 200,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            title: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 18.0,
-                    horizontal: 18,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed(UserView.routeName),
-                        child: CircleAvatar(
-                          radius: 22,
-                          backgroundColor: Colors.white,
-                        ),
-                      ),
-                      Spacer(),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 276),
-                        child: TextField(
-                          style: TextStyle(
-                              color: Colors.white, height: 0.2, fontSize: 16),
-                          controller: TextEditingController(),
-                          decoration: InputDecoration(
-                            labelText: 'Поиск',
-                            labelStyle:
-                                TextStyle(color: Colors.white, height: 2.0),
-                            contentPadding: EdgeInsets.only(left: 18),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(
-                                width: 0.5,
-                                color: Colors.white,
-                              ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(
-                                width: 0.5,
-                                color: Colors.white,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(
-                                width: 0.5,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: Container(
-                    padding: EdgeInsets.all(15),
-                    height: 93,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: RadioWidget(
-                      onChanged: (value) {
-                        final newData = sortOrders(orders, value);
-                        setState(() {
-                          sortedOrders.clear();
-                          sortedOrders.addAll(newData);
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            flexibleSpace: FlexibleSpaceBar(),
-          ),
+          _buildAppBar(),
           sortedOrders.isNotEmpty
               ? SliverList.builder(
                   itemBuilder: (context, index) {
@@ -185,9 +100,97 @@ class _OrdersViewState extends ConsumerState<OrdersView> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                )
+                ),
         ],
       ),
+    );
+  }
+
+  SliverAppBar _buildAppBar() {
+    return SliverAppBar(
+      automaticallyImplyLeading: false,
+      toolbarHeight: 200,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 18.0,
+              horizontal: 18,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(UserView.routeName),
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                Spacer(),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 276),
+                  child: TextField(
+                    style: TextStyle(
+                        color: Colors.white, height: 0.2, fontSize: 16),
+                    controller: TextEditingController(),
+                    decoration: InputDecoration(
+                      labelText: 'Поиск',
+                      labelStyle: TextStyle(color: Colors.white, height: 2.0),
+                      contentPadding: EdgeInsets.only(left: 18),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          width: 0.5,
+                          color: Colors.white,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          width: 0.5,
+                          color: Colors.white,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          width: 0.5,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: Container(
+              padding: EdgeInsets.all(15),
+              height: 93,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: RadioWidget(
+                onChanged: (value) {
+                  final newData = sortOrders(orders, value);
+                  setState(() {
+                    sortedOrders.clear();
+                    sortedOrders.addAll(newData);
+                  });
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+      flexibleSpace: FlexibleSpaceBar(),
     );
   }
 }

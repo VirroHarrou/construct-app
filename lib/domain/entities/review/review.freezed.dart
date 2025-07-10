@@ -16,10 +16,13 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Review {
   String get id;
-  String get text;
+  String get content;
   int get rating;
-  String get orderId;
-  String get userId;
+  @JsonKey(name: 'recepient_id')
+  String get recepientId;
+  @JsonKey(name: 'sender_id')
+  String get senderId;
+  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   Order? get order;
 
@@ -32,10 +35,12 @@ mixin _$Review {
         (other.runtimeType == runtimeType &&
             other is Review &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.text, text) || other.text == text) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.rating, rating) || other.rating == rating) &&
-            (identical(other.orderId, orderId) || other.orderId == orderId) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.recepientId, recepientId) ||
+                other.recepientId == recepientId) &&
+            (identical(other.senderId, senderId) ||
+                other.senderId == senderId) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.order, order) || other.order == order));
@@ -43,12 +48,12 @@ mixin _$Review {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, text, rating, orderId, userId, createdAt, order);
+  int get hashCode => Object.hash(runtimeType, id, content, rating, recepientId,
+      senderId, createdAt, order);
 
   @override
   String toString() {
-    return 'Review(id: $id, text: $text, rating: $rating, orderId: $orderId, userId: $userId, createdAt: $createdAt, order: $order)';
+    return 'Review(id: $id, content: $content, rating: $rating, recepientId: $recepientId, senderId: $senderId, createdAt: $createdAt, order: $order)';
   }
 }
 
@@ -57,25 +62,28 @@ mixin _$Review {
 class _Review implements Review {
   _Review(
       {required this.id,
-      required this.text,
+      required this.content,
       required this.rating,
-      required this.orderId,
-      required this.userId,
-      required this.createdAt,
+      @JsonKey(name: 'recepient_id') required this.recepientId,
+      @JsonKey(name: 'sender_id') required this.senderId,
+      @JsonKey(name: 'created_at') required this.createdAt,
       this.order});
   factory _Review.fromJson(Map<String, dynamic> json) => _$ReviewFromJson(json);
 
   @override
   final String id;
   @override
-  final String text;
+  final String content;
   @override
   final int rating;
   @override
-  final String orderId;
+  @JsonKey(name: 'recepient_id')
+  final String recepientId;
   @override
-  final String userId;
+  @JsonKey(name: 'sender_id')
+  final String senderId;
   @override
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
   final Order? order;
@@ -93,10 +101,12 @@ class _Review implements Review {
         (other.runtimeType == runtimeType &&
             other is _Review &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.text, text) || other.text == text) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.rating, rating) || other.rating == rating) &&
-            (identical(other.orderId, orderId) || other.orderId == orderId) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.recepientId, recepientId) ||
+                other.recepientId == recepientId) &&
+            (identical(other.senderId, senderId) ||
+                other.senderId == senderId) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.order, order) || other.order == order));
@@ -104,20 +114,21 @@ class _Review implements Review {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, text, rating, orderId, userId, createdAt, order);
+  int get hashCode => Object.hash(runtimeType, id, content, rating, recepientId,
+      senderId, createdAt, order);
 
   @override
   String toString() {
-    return 'Review(id: $id, text: $text, rating: $rating, orderId: $orderId, userId: $userId, createdAt: $createdAt, order: $order)';
+    return 'Review(id: $id, content: $content, rating: $rating, recepientId: $recepientId, senderId: $senderId, createdAt: $createdAt, order: $order)';
   }
 }
 
 /// @nodoc
 mixin _$ReviewCreate {
-  String get text;
+  String get content;
   int get rating;
-  String get orderId;
+  @JsonKey(name: 'recepient_id')
+  String get recepientId;
 
   /// Serializes this ReviewCreate to a JSON map.
   Map<String, dynamic> toJson();
@@ -127,18 +138,19 @@ mixin _$ReviewCreate {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is ReviewCreate &&
-            (identical(other.text, text) || other.text == text) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.rating, rating) || other.rating == rating) &&
-            (identical(other.orderId, orderId) || other.orderId == orderId));
+            (identical(other.recepientId, recepientId) ||
+                other.recepientId == recepientId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, text, rating, orderId);
+  int get hashCode => Object.hash(runtimeType, content, rating, recepientId);
 
   @override
   String toString() {
-    return 'ReviewCreate(text: $text, rating: $rating, orderId: $orderId)';
+    return 'ReviewCreate(content: $content, rating: $rating, recepientId: $recepientId)';
   }
 }
 
@@ -146,16 +158,19 @@ mixin _$ReviewCreate {
 @JsonSerializable()
 class _ReviewCreate implements ReviewCreate {
   _ReviewCreate(
-      {required this.text, required this.rating, required this.orderId});
+      {required this.content,
+      required this.rating,
+      @JsonKey(name: 'recepient_id') required this.recepientId});
   factory _ReviewCreate.fromJson(Map<String, dynamic> json) =>
       _$ReviewCreateFromJson(json);
 
   @override
-  final String text;
+  final String content;
   @override
   final int rating;
   @override
-  final String orderId;
+  @JsonKey(name: 'recepient_id')
+  final String recepientId;
 
   @override
   Map<String, dynamic> toJson() {
@@ -169,18 +184,19 @@ class _ReviewCreate implements ReviewCreate {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _ReviewCreate &&
-            (identical(other.text, text) || other.text == text) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.rating, rating) || other.rating == rating) &&
-            (identical(other.orderId, orderId) || other.orderId == orderId));
+            (identical(other.recepientId, recepientId) ||
+                other.recepientId == recepientId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, text, rating, orderId);
+  int get hashCode => Object.hash(runtimeType, content, rating, recepientId);
 
   @override
   String toString() {
-    return 'ReviewCreate(text: $text, rating: $rating, orderId: $orderId)';
+    return 'ReviewCreate(content: $content, rating: $rating, recepientId: $recepientId)';
   }
 }
 

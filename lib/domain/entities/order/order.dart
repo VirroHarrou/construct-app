@@ -18,7 +18,10 @@ sealed class Order with _$Order {
     @JsonKey(name: 'begin_time') required DateTime beginTime,
     @JsonKey(name: 'end_time') required DateTime endTime,
     @JsonKey(name: 'user_id') required String userId,
-    @Default(0) int viewed,
+    @JsonKey(name: 'views_count') @Default(0) int viewed,
+    @JsonKey(name: 'waiting_user_ids')
+    @Default(<String>[])
+    List<String> waitingUserIds,
   }) = _Order;
 
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);

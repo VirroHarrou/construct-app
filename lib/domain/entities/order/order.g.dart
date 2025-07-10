@@ -17,7 +17,11 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       beginTime: DateTime.parse(json['begin_time'] as String),
       endTime: DateTime.parse(json['end_time'] as String),
       userId: json['user_id'] as String,
-      viewed: (json['viewed'] as num?)?.toInt() ?? 0,
+      viewed: (json['views_count'] as num?)?.toInt() ?? 0,
+      waitingUserIds: (json['waiting_user_ids'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
     );
 
 Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
@@ -31,7 +35,8 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
       'begin_time': instance.beginTime.toIso8601String(),
       'end_time': instance.endTime.toIso8601String(),
       'user_id': instance.userId,
-      'viewed': instance.viewed,
+      'views_count': instance.viewed,
+      'waiting_user_ids': instance.waitingUserIds,
     };
 
 _OrderCreate _$OrderCreateFromJson(Map<String, dynamic> json) => _OrderCreate(

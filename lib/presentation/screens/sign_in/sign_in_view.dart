@@ -1,4 +1,6 @@
 import 'package:construct/core/utils/phone_digits.dart';
+import 'package:construct/domain/failures/api_failure.dart';
+import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/navigation_view.dart';
 import 'package:construct/presentation/screens/sign_up/sing_up_view.dart';
 import 'package:construct/presentation/widgets/primary_text_field.dart';
@@ -31,6 +33,7 @@ class _SignInViewState extends ConsumerState<SignInView> {
       final token = await authService.login(phone, password);
       tokenService.saveTokens(token["access_token"], token["refresh_token"]);
     } catch (e) {
+      if (e is Unauthorized) return 'Неверный номер телефона или пароль!';
       return e.toString();
     }
     return null;
@@ -39,113 +42,116 @@ class _SignInViewState extends ConsumerState<SignInView> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: Theme.of(context).colorScheme.primary,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 20,
-          children: [
-            Text(
-              'Войти',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: colorScheme.primary,
-                fontSize: 30,
-              ),
-            ),
-            Text(
-              'Введите ваш логин и пароль, чтобы войти!',
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                // color: AppColors.primaryLight,
-                fontSize: 16,
-              ),
-            ),
-            SizedBox(height: 10),
-            PrimaryTextField(
-              textEditingController: _phoneController,
-              label: 'Номер телефона',
-              hintText: '+7(999)999-99-99',
-              inputFormatters: [
-                MaskTextInputFormatter(
-                  mask: '+7(XXX)XXX-XX-XX',
-                  filter: {'X': RegExp(r'\d')},
-                )
-              ],
-            ),
-            PrimaryTextField(
-              textEditingController: _passwordController,
-              label: 'Пароль',
-              hintText: 'Пароль',
-              obscureText: true,
-              textCapitalization: TextCapitalization.none,
-            ),
-            if (!message.isEmptyOrNull) ...[
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 20,
+            children: [
               Text(
-                message!,
+                S.of(context).singIn,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.primary,
+                  fontSize: 30,
                 ),
+              ),
+              Text(
+                'Введите ваш логин и пароль, чтобы войти!',
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  // color: AppColors.primaryLight,
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 10),
+              PrimaryTextField(
+                textEditingController: _phoneController,
+                label: S.of(context).phoneNumber,
+                hintText: '+7(999)999-99-99',
+                inputFormatters: [
+                  MaskTextInputFormatter(
+                    mask: '+7(XXX)XXX-XX-XX',
+                    filter: {'X': RegExp(r'\d')},
+                  )
+                ],
+              ),
+              PrimaryTextField(
+                textEditingController: _passwordController,
+                label: S.of(context).password,
+                hintText: S.of(context).password,
+                obscureText: true,
+                textCapitalization: TextCapitalization.none,
+              ),
+              if (!message.isEmptyOrNull) ...[
+                Text(
+                  message!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ],
+              SizedBox(height: 40),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                ),
+                onPressed: () async {
+                  final phone = extractPhoneDigits(_phoneController.text);
+                  final password = _passwordController.text;
+
+                  if (phone == null || password.isEmpty) {
+                    setState(() => message = "Заполните все поля");
+                    return;
+                  }
+
+                  final errorMessage = await login(password, phone);
+                  if (errorMessage != null) {
+                    setState(() => message = errorMessage);
+                  } else if (context.mounted) {
+                    Navigator.pushReplacementNamed(
+                        context, NavigationView.routeName);
+                  }
+                },
+                child: Text(
+                  S.of(context).singIn,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Text(S.of(context).notHaveAccount),
+                  InkWell(
+                    onTap: () => Navigator.of(context)
+                        .pushReplacementNamed(SignUpView.routeName),
+                    child: Text(
+                      S.of(context).createAccount,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ],
-            SizedBox(height: 40),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-              ),
-              onPressed: () async {
-                final phone = extractPhoneDigits(_phoneController.text);
-                final password = _passwordController.text;
-
-                if (phone == null || password.isEmpty) {
-                  setState(() => message = "Заполните все поля");
-                  return;
-                }
-
-                final errorMessage = await login(password, phone);
-                if (errorMessage != null) {
-                  setState(() => message = errorMessage);
-                } else if (context.mounted) {
-                  Navigator.pushReplacementNamed(
-                      context, NavigationView.routeName);
-                }
-              },
-              child: Text(
-                'Войти',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Text('Не зарегистрирован? '),
-                InkWell(
-                  onTap: () => Navigator.of(context)
-                      .pushReplacementNamed(SignUpView.routeName),
-                  child: Text(
-                    'Создать аккаунт',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );

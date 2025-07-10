@@ -1,6 +1,46 @@
 {
-    "appTitle": "construct",
-    "@appTitle": {
-        "description": "The title of the application"
+  "appTitle": "construct",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "saveChanges": "Save changes",
+  "address": "Address:",
+  "description": "Description:",
+  "FCs": "FCs:",
+  "photo": "Photo:",
+  "justNow": "just now",
+  "soon": "soon",
+  "pastTime": "{unit} ago",
+  "futureTime": "in {unit}",
+  "unitSecond": "{count, plural, one{1 second} other{{count} seconds}}",
+  "unitMinute": "{count, plural, one{1 minute} other{{count} minutes}}",
+  "unitHour": "{count, plural, one{1 hour} other{{count} hours}}",
+  "unitDay": "{count, plural, one{1 day} other{{count} days}}",
+  "unitWeek": "{count, plural, one{1 week} other{{count} weeks}}",
+  "unitMonth": "{count, plural, one{1 month} other{{count} months}}",
+  "unitYear": "{count, plural, one{1 year} other{{count} years}}",
+  "@unitSecond": {
+    "description": "Second unit with count",
+    "placeholders": {
+      "count": {}
     }
+  },
+  "@pastTime": {
+    "description": "Past time format",
+    "placeholders": {
+      "unit": {}
+    }
+  },
+  "viewsCount": "{count, plural, one{1 view} other{{count} views}}",
+  "welcomePhrase": "Hi, {userName}, you want ",
+  "createOrderQ": "create order?",
+  "orders": "Orders",
+  "main": "Main",
+  "chats": "Chats",
+  "phoneNumber": "Phonenumber",
+  "password": "Password",
+  "repeatPassword": "Repeat password",
+  "notHaveAccount": "Не зарегистрирован? ",
+  "createAccount": "Создать аккаунт",
+  "singIn": "Войти"
 }

@@ -1,3 +1,4 @@
+import 'package:construct/domain/entities/chat/message/message.dart';
 import 'package:construct/domain/entities/chat/message_action/chat_message_action.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/presentation/screens/chat/message/message_view.dart';
@@ -19,7 +20,7 @@ class ChatDetailView extends ConsumerStatefulWidget {
 
 class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
   final TextEditingController _messageController = TextEditingController();
-  final FocusNode _textFieldFocusNode = FocusNode();
+  ChatMessageResponse? _messageResponse;
 
   @override
   void initState() {
@@ -28,7 +29,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
 
   @override
   void dispose() {
-    _textFieldFocusNode.dispose();
     _messageController.dispose();
     super.dispose();
   }
@@ -85,14 +85,27 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
             final colorScheme = Theme.of(context).colorScheme;
 
             messages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+            if (messages.isNotEmpty) _messageResponse = messages.first;
 
             return GestureDetector(
-              onTap: () => _textFieldFocusNode.unfocus(),
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Scaffold(
                 appBar: AppBar(
-                  title: Text(widget.user.fio),
+                  title: Text(
+                    widget.user.fio,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
+                  backgroundColor: colorScheme.primaryContainer,
                   surfaceTintColor: colorScheme.surface,
                   shadowColor: Colors.black54,
+                  leading: IconButton(
+                    onPressed: () =>
+                        Navigator.of(context).pop(_messageResponse),
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: colorScheme.primary,
+                    ),
+                  ),
                 ),
                 body: Column(
                   children: [
@@ -149,51 +162,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
                         ),
                       ),
                     ),
-                    Container(
-                      color: colorScheme.primaryContainer,
-                      padding: EdgeInsets.fromLTRB(20, 10, 10, 20),
-                      child: Row(
-                        spacing: 10,
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              focusNode: _textFieldFocusNode,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              controller: _messageController,
-                              decoration: InputDecoration(
-                                hintText: 'Написать сообщение...',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide(
-                                    color: colorScheme.primary,
-                                    width: 0.5,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide(
-                                    color: colorScheme.primary,
-                                    width: 0.5,
-                                  ),
-                                ),
-                              ),
-                              maxLines: 5,
-                              minLines: 1,
-                              // onSubmitted: (_) => _sendMessage(),
-                            ),
-                          ),
-                          IconButton.filled(
-                            icon: Icon(
-                              Icons.arrow_upward_outlined,
-                            ),
-                            onPressed: _sendMessage,
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildInput(colorScheme),
                   ],
                 ),
               ),
@@ -203,6 +172,53 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
           loading: () => CircularProgressIndicator(),
         );
       },
+    );
+  }
+
+  Container _buildInput(ColorScheme colorScheme) {
+    return Container(
+      color: colorScheme.primaryContainer,
+      padding: EdgeInsets.fromLTRB(20, 10, 10, 20),
+      child: Row(
+        spacing: 10,
+        children: [
+          Expanded(
+            child: TextField(
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              controller: _messageController,
+              decoration: InputDecoration(
+                hintText: 'Написать сообщение...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide(
+                    color: colorScheme.primary,
+                    width: 0.5,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide(
+                    color: colorScheme.primary,
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              maxLines: 5,
+              minLines: 1,
+              // onSubmitted: (_) => _sendMessage(),
+            ),
+          ),
+          IconButton.filled(
+            icon: Icon(
+              Icons.arrow_upward_outlined,
+            ),
+            onPressed: _sendMessage,
+          ),
+        ],
+      ),
     );
   }
 }

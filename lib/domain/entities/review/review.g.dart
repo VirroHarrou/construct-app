@@ -8,11 +8,11 @@ part of 'review.dart';
 
 _Review _$ReviewFromJson(Map<String, dynamic> json) => _Review(
       id: json['id'] as String,
-      text: json['text'] as String,
+      content: json['content'] as String,
       rating: (json['rating'] as num).toInt(),
-      orderId: json['orderId'] as String,
-      userId: json['userId'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      recepientId: json['recepient_id'] as String,
+      senderId: json['sender_id'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
       order: json['order'] == null
           ? null
           : Order.fromJson(json['order'] as Map<String, dynamic>),
@@ -20,24 +20,24 @@ _Review _$ReviewFromJson(Map<String, dynamic> json) => _Review(
 
 Map<String, dynamic> _$ReviewToJson(_Review instance) => <String, dynamic>{
       'id': instance.id,
-      'text': instance.text,
+      'content': instance.content,
       'rating': instance.rating,
-      'orderId': instance.orderId,
-      'userId': instance.userId,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'recepient_id': instance.recepientId,
+      'sender_id': instance.senderId,
+      'created_at': instance.createdAt.toIso8601String(),
       'order': instance.order,
     };
 
 _ReviewCreate _$ReviewCreateFromJson(Map<String, dynamic> json) =>
     _ReviewCreate(
-      text: json['text'] as String,
+      content: json['content'] as String,
       rating: (json['rating'] as num).toInt(),
-      orderId: json['orderId'] as String,
+      recepientId: json['recepient_id'] as String,
     );
 
 Map<String, dynamic> _$ReviewCreateToJson(_ReviewCreate instance) =>
     <String, dynamic>{
-      'text': instance.text,
+      'content': instance.content,
       'rating': instance.rating,
-      'orderId': instance.orderId,
+      'recepient_id': instance.recepientId,
     };

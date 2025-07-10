@@ -1,108 +1,36 @@
-import 'package:construct/domain/entities/order/order.dart';
-import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/order_detail/order_detail_view.dart';
 import 'package:construct/presentation/screens/order_editor/order_editor_view.dart';
 import 'package:construct/presentation/widgets/order_card.dart';
 import 'package:construct/presentation/widgets/sortable_button.dart';
 import 'package:construct/services/api/order_service.dart';
-import 'package:construct/services/api/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MainView extends ConsumerStatefulWidget {
+import 'main_notifier_provider.dart';
+
+class MainView extends ConsumerWidget {
   const MainView({super.key});
 
   static const routeName = "/main";
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => MainViewState();
-}
-
-class MainViewState extends ConsumerState<MainView> {
-  List<SortableItem> sortItems = [
-    SortableItem(
-        icon: Icons.date_range_outlined, label: "Дата", sortOrder: 'asc'),
-    SortableItem(
-        icon: Icons.price_change, label: "Стоимость", sortOrder: 'null'),
-    SortableItem(
-        icon: Icons.location_on, label: "Расстояние", sortOrder: 'null'),
-    SortableItem(
-        icon: Icons.people_outline_sharp,
-        label: "Популярное",
-        sortOrder: 'null'),
-    SortableItem(icon: Icons.task_sharp, label: "Отклики", sortOrder: 'null'),
-  ];
-
-  User? user;
-  final List<Order> orders = [];
-
-  Future<void> getMe() async {
-    try {
-      user = await ref.read(userServiceProvider).getMe();
-      setState(() {});
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> loadOrders() async {
-    final data = await ref.read(orderServiceProvider).getAllOrders();
-    orders.clear();
-    setState(() {
-      orders.addAll(sortOrders(data, sortItems));
-    });
-  }
-
-  List<Order> sortOrders(List<Order> orders, List<SortableItem> sortItems) {
-    final sortedOrders = List<Order>.from(orders);
-
-    final activeSort = sortItems.firstWhere(
-      (item) => item.sortOrder != 'null',
-      orElse: () => SortableItem(
-        icon: Icons.date_range_outlined,
-        label: "Дата",
-        sortOrder: 'asc',
-      ),
-    );
-
-    int Function(Order, Order) getComparator() {
-      switch (activeSort.label) {
-        case "Дата":
-          return (a, b) => a.beginTime.compareTo(b.beginTime);
-        case "Стоимость":
-          return (a, b) => a.price.compareTo(b.price);
-        case "Расстояние":
-          //Todo: Заглушка - требуется реализация логики расчета расстояния
-          return (a, b) => 0;
-        case "Популярное":
-          return (a, b) => a.viewed.compareTo(b.viewed);
-        case "Отклики":
-          //Todo: Заглушка - требуется поле с количеством откликов
-          return (a, b) => 0;
-        default:
-          return (a, b) => a.beginTime.compareTo(b.beginTime);
-      }
-    }
-
-    sortedOrders.sort((a, b) {
-      final comparator = getComparator();
-      final result = comparator(a, b);
-      return activeSort.sortOrder == 'asc' ? result : -result;
-    });
-
-    return sortedOrders;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getMe();
-    loadOrders();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(mainNotifierProvider);
+    final notifier = ref.read(mainNotifierProvider.notifier);
     final colorScheme = Theme.of(context).colorScheme;
+
+    Future<void> navigateTo(String orderId) async {
+      final order = await ref.read(orderServiceProvider).getOrder(orderId);
+      if (context.mounted) {
+        Navigator.of(context).pushNamed(
+          OrderDetailView.routeName,
+          arguments: order,
+        );
+      }
+      notifier.loadData();
+    }
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -123,14 +51,15 @@ class MainViewState extends ConsumerState<MainView> {
                     child: Row(
                       children: [
                         Text(
-                          "Привет, ${user?.fio.split(" ")[1] ?? '-'}, хочешь ",
+                          S.of(context).welcomePhrase(
+                              state.user?.fio.split(" ")[1] ?? 'Noname'),
                           style: TextStyle(fontSize: 16),
                         ),
                         InkWell(
                           onTap: () => Navigator.of(context)
                               .pushNamed(OrderEditorView.routeName),
                           child: Text(
-                            "создать заказ?",
+                            S.of(context).createOrderQ,
                             style: TextStyle(
                               fontSize: 16,
                               color: colorScheme.primary,
@@ -173,24 +102,9 @@ class MainViewState extends ConsumerState<MainView> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: SortableButtonRow(
-                      items: sortItems,
+                      items: state.sortItems,
                       onItemPressed: (index) {
-                        setState(() {
-                          final currentOrder = sortItems[index].sortOrder;
-                          if (currentOrder == 'null') {
-                            sortItems[index] =
-                                sortItems[index].copyWith(sortOrder: 'asc');
-                          } else if (currentOrder == 'asc') {
-                            sortItems[index] =
-                                sortItems[index].copyWith(sortOrder: 'desc');
-                          } else {
-                            sortItems[index] =
-                                sortItems[index].copyWith(sortOrder: 'null');
-                          }
-                          final newOrders = sortOrders(orders, sortItems);
-                          orders.clear();
-                          orders.addAll(newOrders);
-                        });
+                        notifier.updateSortItem(index);
                       },
                     ),
                   ),
@@ -207,7 +121,7 @@ class MainViewState extends ConsumerState<MainView> {
               ],
             ),
           ),
-          orders.isNotEmpty
+          state.orders.isNotEmpty
               ? SliverList.builder(
                   itemBuilder: (context, index) {
                     return Padding(
@@ -218,18 +132,14 @@ class MainViewState extends ConsumerState<MainView> {
                         right: 20,
                       ),
                       child: OrderCard(
-                        order: orders[index],
+                        order: state.orders[index],
+                        isMy: state.orders[index].userId == state.user?.id,
                         maximize: false,
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(
-                            OrderDetailView.routeName,
-                            arguments: orders[index],
-                          );
-                        },
+                        onPressed: () => navigateTo(state.orders[index].id),
                       ),
                     );
                   },
-                  itemCount: orders.length,
+                  itemCount: state.orders.length,
                 )
               : SliverFillRemaining(
                   child: Center(

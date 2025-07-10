@@ -43,20 +43,23 @@ class _SignUpViewState extends ConsumerState<SignUpView> {
           ),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: SignUpBuilder(
-            onSubmit: (user) {
-              createUser(user).then((value) {
-                if (value != null) return value;
-                if (context.mounted) {
-                  Navigator.of(context)
-                      .pushReplacementNamed(NavigationView.routeName);
-                }
-              });
-              return null;
-            },
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: SignUpBuilder(
+              onSubmit: (user) {
+                createUser(user).then((value) {
+                  if (value != null) return value;
+                  if (context.mounted) {
+                    Navigator.of(context)
+                        .pushReplacementNamed(NavigationView.routeName);
+                  }
+                });
+                return null;
+              },
+            ),
           ),
         ),
       ),

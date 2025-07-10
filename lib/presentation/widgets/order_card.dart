@@ -1,17 +1,23 @@
 import 'package:construct/core/utils/compare_time.dart';
+import 'package:construct/core/utils/extensions.dart';
 import 'package:construct/domain/entities/order/order.dart';
+import 'package:construct/generated/l10n.dart';
+import 'package:construct/presentation/screens/order_editor/order_editor_view.dart';
 import 'package:flutter/material.dart';
 
 class OrderCard extends StatelessWidget {
-  const OrderCard({
+  OrderCard({
     super.key,
     required this.order,
     this.maximize = false,
     this.onPressed,
+    this.isMy = false,
   });
   final bool maximize;
+  final bool isMy;
   final VoidCallback? onPressed;
   final Order order;
+  final menuController = MenuController();
 
   @override
   Widget build(BuildContext context) {
@@ -55,15 +61,12 @@ class OrderCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        getComparedTime(order.beginTime),
+                        getComparedTime(order.beginTime, S.of(context)),
                         style: TextStyle(
                           color: Colors.grey,
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.more_horiz),
-                      ),
+                      _buildMenuButton(context),
                     ],
                   ),
                   Text(order.title),
@@ -77,8 +80,11 @@ class OrderCard extends StatelessWidget {
                       Text("${order.price} руб."),
                       if (order.status != null)
                         Text(
-                          order.status!,
-                          style: TextStyle(color: Colors.blue),
+                          order.status!.capitalize(),
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                     ],
                   ),
@@ -88,6 +94,54 @@ class OrderCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMenuButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return MenuAnchor(
+      controller: menuController,
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(colorScheme.primary),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      builder: (context, controller, child) {
+        return IconButton(
+          icon: Icon(Icons.more_horiz, color: colorScheme.onSurfaceVariant),
+          onPressed: isMy
+              ? () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                }
+              : null,
+        );
+      },
+      menuChildren: [
+        InkWell(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12),
+            child: const Text(
+              'Редактировать заказ',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          onTap: () async {
+            Navigator.of(context)
+                .pushNamed(OrderEditorView.routeName, arguments: order);
+          },
+        ),
+      ],
     );
   }
 }

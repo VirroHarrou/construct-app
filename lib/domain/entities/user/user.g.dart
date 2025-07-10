@@ -12,6 +12,7 @@ _User _$UserFromJson(Map<String, dynamic> json) => _User(
       phone: json['phone'] as String,
       address: json['address'] as String,
       inn: json['inn'] as String,
+      description: json['description'] as String?,
       imageUrl: json['imageUrl'] as String?,
       companyId: json['companyId'] as String?,
       company: json['company'] == null
@@ -25,6 +26,7 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
       'phone': instance.phone,
       'address': instance.address,
       'inn': instance.inn,
+      'description': instance.description,
       'imageUrl': instance.imageUrl,
       'companyId': instance.companyId,
       'company': instance.company,
@@ -55,6 +57,7 @@ _UserUpdate _$UserUpdateFromJson(Map<String, dynamic> json) => _UserUpdate(
       fio: json['fio'] as String?,
       phone: json['phone'] as String?,
       address: json['address'] as String?,
+      description: json['description'] as String?,
       password: json['password'] as String?,
       imageUrl: json['imageUrl'] as String?,
     );
@@ -64,6 +67,7 @@ Map<String, dynamic> _$UserUpdateToJson(_UserUpdate instance) =>
       'fio': instance.fio,
       'phone': instance.phone,
       'address': instance.address,
+      'description': instance.description,
       'password': instance.password,
       'imageUrl': instance.imageUrl,
     };

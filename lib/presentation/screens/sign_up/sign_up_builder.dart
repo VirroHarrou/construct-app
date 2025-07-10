@@ -1,5 +1,7 @@
 import 'package:construct/core/utils/phone_digits.dart';
+import 'package:construct/core/utils/user_fields_validator.dart';
 import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/sign_in/sign_in_view.dart';
 import 'package:construct/presentation/widgets/primary_text_field.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +85,7 @@ class _SignUpBuilderState extends ConsumerState<SignUpBuilder> {
         SizedBox(height: 10),
         PrimaryTextField(
           textEditingController: phoneController,
-          label: 'Номер телефона',
+          label: S.of(context).phoneNumber,
           hintText: '+7(999)531-43-14',
           inputFormatters: [
             MaskTextInputFormatter(
@@ -94,13 +96,13 @@ class _SignUpBuilderState extends ConsumerState<SignUpBuilder> {
         ),
         PrimaryTextField(
           textEditingController: passwordController,
-          label: 'Пароль',
+          label: S.of(context).password,
           hintText: 'Пароль',
           textCapitalization: TextCapitalization.none,
         ),
         PrimaryTextField(
           textEditingController: repeatPasswordController,
-          label: 'Повторите пароль',
+          label: S.of(context).repeatPassword,
           hintText: 'Пароль',
           textCapitalization: TextCapitalization.none,
         ),
@@ -196,12 +198,12 @@ class _SignUpBuilderState extends ConsumerState<SignUpBuilder> {
         SizedBox(height: 10),
         PrimaryTextField(
           textEditingController: fioController,
-          label: 'ФИО',
+          label: S.of(context).FCs,
           hintText: 'Жуков Максим Леонидович',
         ),
         PrimaryTextField(
           textEditingController: addressController,
-          label: 'Адресс',
+          label: S.of(context).address,
           hintText: 'ул. Угличская, д. 155, г. Ярославль',
         ),
         PrimaryTextField(
@@ -229,14 +231,8 @@ class _SignUpBuilderState extends ConsumerState<SignUpBuilder> {
             final fio = fioController.text;
             final address = addressController.text;
             final inn = innController.text;
-            if (!RegExp(r'^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+$')
-                .hasMatch(fio)) {
-              errorMessage = 'Заполните ФИО в соотвествии с подсказкой!';
-            } else if (address.isEmpty) {
-              errorMessage = 'Адресс не должен быть пустым!';
-            } else if (!RegExp(r'^[0-9]{12,12}').hasMatch(inn)) {
-              errorMessage = 'ИНН должен быть длинной 12 цифр!';
-            }
+            errorMessage =
+                userFieldsValidator(inn: inn, fio: fio, address: address);
             setState(() {});
             final initUser = UserCreate(
               fio: fio,

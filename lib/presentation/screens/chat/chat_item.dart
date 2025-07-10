@@ -1,23 +1,38 @@
 import 'package:construct/core/utils/compare_time.dart';
 import 'package:construct/domain/entities/chat/chat_item/chat.dart';
+import 'package:construct/domain/entities/chat/message/message.dart';
 import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/chat/chat_detail_view.dart';
 import 'package:construct/services/api/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChatItem extends ConsumerWidget {
-  final Chat message;
+class ChatItem extends ConsumerStatefulWidget {
+  final Chat chat;
 
-  const ChatItem({super.key, required this.message});
+  const ChatItem({super.key, required this.chat});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _ChatItemState();
+}
+
+class _ChatItemState extends ConsumerState<ChatItem> {
+  late Chat chat;
 
   Future<User> getSender(WidgetRef ref) async {
-    final res = await ref.read(userServiceProvider).getUser(message.id);
+    final res = await ref.read(userServiceProvider).getUser(chat.id);
     return res;
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    chat = widget.chat;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
@@ -39,7 +54,7 @@ class ChatItem extends ConsumerWidget {
             spacing: 12,
             children: [
               Text(
-                getComparedTime(message.createdAt),
+                getComparedTime(chat.lastMessage.createdAt, S.of(context)),
                 style: TextStyle(
                   color: colorScheme.onSecondaryContainer,
                   fontSize: 12,
@@ -54,14 +69,21 @@ class ChatItem extends ConsumerWidget {
           ),
           FutureBuilder<User>(
             future: getSender(ref),
-            builder: (context, snapshot) {
+            builder: (context, result) {
               return InkWell(
-                onTap: () {
-                  if (snapshot.hasData) {
-                    Navigator.of(context).pushNamed(
+                onTap: () async {
+                  if (result.hasData) {
+                    final message = await Navigator.of(context).pushNamed(
                       ChatDetailView.routeName,
-                      arguments: snapshot.requireData,
+                      arguments: result.requireData,
                     );
+                    if (message != null && message is ChatMessageResponse) {
+                      setState(() => chat = Chat(
+                            id: widget.chat.id,
+                            username: widget.chat.username,
+                            lastMessage: message,
+                          ));
+                    }
                   }
                 },
                 child: Container(
@@ -87,8 +109,7 @@ class ChatItem extends ConsumerWidget {
                             spacing: 5,
                             children: [
                               Text(
-                                snapshot.data?.fio ??
-                                    'Неизвестный пользователь',
+                                result.data?.fio ?? 'Неизвестный пользователь',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 12,
@@ -98,9 +119,23 @@ class ChatItem extends ConsumerWidget {
                           )
                         ],
                       ),
-                      Text(
-                        message.content,
-                        style: TextStyle(fontSize: 12),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            if (chat.lastMessage.senderId != result.data?.id)
+                              TextSpan(
+                                text: 'Вы: ',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            TextSpan(
+                              text: chat.lastMessage.content,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

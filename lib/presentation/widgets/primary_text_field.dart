@@ -8,9 +8,11 @@ class PrimaryTextField extends StatefulWidget {
   final TextEditingController textEditingController;
   final String? hintText;
   // final TextStyle hintStyle;
+  final FocusNode? focusNode;
   final int? maxLength;
   final Function(String)? onChanged;
   final Function(String)? onSubmitted;
+  final TextInputType keyboardType;
   final int maxLines;
   final bool obscureText;
   final bool autofocus;
@@ -21,10 +23,12 @@ class PrimaryTextField extends StatefulWidget {
     super.key,
     this.height,
     this.label,
+    this.focusNode,
     required this.textEditingController,
     this.hintText,
     this.obscureText = false,
     this.maxLines = 1,
+    this.keyboardType = TextInputType.text,
     // this.hintStyle = const TextStyle(
     //   fontSize: 16,
     //   fontWeight: FontWeight.w400,
@@ -91,8 +95,9 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
           Stack(
             children: [
               TextFormField(
+                focusNode: widget.focusNode,
                 controller: widget.textEditingController,
-                keyboardType: TextInputType.text,
+                keyboardType: widget.keyboardType,
                 cursorColor: Colors.black,
                 obscureText: widget.obscureText,
                 textCapitalization:
@@ -101,7 +106,7 @@ class _PrimaryTextFieldState extends State<PrimaryTextField> {
                 minLines: (widget.height != null) ? widget.height! ~/ 30 : 1,
                 autofocus: widget.autofocus,
                 onChanged: (str) {
-                  widget.onChanged;
+                  if (widget.onChanged != null) widget.onChanged!(str);
                   setState(() {
                     symbolsInput = str.length;
                   });

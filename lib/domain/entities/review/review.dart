@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:construct/domain/entities/order/order.dart';
 
@@ -8,11 +10,11 @@ part 'review.g.dart';
 sealed class Review with _$Review {
   factory Review({
     required String id,
-    required String text,
+    required String content,
     required int rating,
-    required String orderId,
-    required String userId,
-    required DateTime createdAt,
+    @JsonKey(name: 'recepient_id') required String recepientId,
+    @JsonKey(name: 'sender_id') required String senderId,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
     Order? order, // Дополнительная информация о заказе
   }) = _Review;
 
@@ -22,9 +24,9 @@ sealed class Review with _$Review {
 @freezed
 sealed class ReviewCreate with _$ReviewCreate {
   factory ReviewCreate({
-    required String text,
+    required String content,
     required int rating,
-    required String orderId,
+    @JsonKey(name: 'recepient_id') required String recepientId,
   }) = _ReviewCreate;
 
   factory ReviewCreate.fromJson(Map<String, dynamic> json) =>

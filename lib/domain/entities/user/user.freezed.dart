@@ -20,6 +20,7 @@ mixin _$User {
   String get phone;
   String get address;
   String get inn;
+  String? get description;
   String? get imageUrl;
   String? get companyId;
   Company? get company;
@@ -37,6 +38,8 @@ mixin _$User {
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.address, address) || other.address == address) &&
             (identical(other.inn, inn) || other.inn == inn) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
             (identical(other.companyId, companyId) ||
@@ -46,12 +49,12 @@ mixin _$User {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, fio, phone, address, inn, imageUrl, companyId, company);
+  int get hashCode => Object.hash(runtimeType, id, fio, phone, address, inn,
+      description, imageUrl, companyId, company);
 
   @override
   String toString() {
-    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, imageUrl: $imageUrl, companyId: $companyId, company: $company)';
+    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, description: $description, imageUrl: $imageUrl, companyId: $companyId, company: $company)';
   }
 }
 
@@ -64,6 +67,7 @@ class _User implements User {
       required this.phone,
       required this.address,
       required this.inn,
+      this.description,
       this.imageUrl,
       this.companyId,
       this.company});
@@ -79,6 +83,8 @@ class _User implements User {
   final String address;
   @override
   final String inn;
+  @override
+  final String? description;
   @override
   final String? imageUrl;
   @override
@@ -103,6 +109,8 @@ class _User implements User {
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.address, address) || other.address == address) &&
             (identical(other.inn, inn) || other.inn == inn) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
             (identical(other.companyId, companyId) ||
@@ -112,12 +120,12 @@ class _User implements User {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, fio, phone, address, inn, imageUrl, companyId, company);
+  int get hashCode => Object.hash(runtimeType, id, fio, phone, address, inn,
+      description, imageUrl, companyId, company);
 
   @override
   String toString() {
-    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, imageUrl: $imageUrl, companyId: $companyId, company: $company)';
+    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, description: $description, imageUrl: $imageUrl, companyId: $companyId, company: $company)';
   }
 }
 
@@ -231,6 +239,7 @@ mixin _$UserUpdate {
   String? get fio;
   String? get phone;
   String? get address;
+  String? get description;
   String? get password;
   String? get imageUrl;
 
@@ -245,6 +254,8 @@ mixin _$UserUpdate {
             (identical(other.fio, fio) || other.fio == fio) &&
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.address, address) || other.address == address) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
             (identical(other.password, password) ||
                 other.password == password) &&
             (identical(other.imageUrl, imageUrl) ||
@@ -253,12 +264,12 @@ mixin _$UserUpdate {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, fio, phone, address, password, imageUrl);
+  int get hashCode => Object.hash(
+      runtimeType, fio, phone, address, description, password, imageUrl);
 
   @override
   String toString() {
-    return 'UserUpdate(fio: $fio, phone: $phone, address: $address, password: $password, imageUrl: $imageUrl)';
+    return 'UserUpdate(fio: $fio, phone: $phone, address: $address, description: $description, password: $password, imageUrl: $imageUrl)';
   }
 }
 
@@ -266,7 +277,12 @@ mixin _$UserUpdate {
 @JsonSerializable()
 class _UserUpdate implements UserUpdate {
   _UserUpdate(
-      {this.fio, this.phone, this.address, this.password, this.imageUrl});
+      {this.fio,
+      this.phone,
+      this.address,
+      this.description,
+      this.password,
+      this.imageUrl});
   factory _UserUpdate.fromJson(Map<String, dynamic> json) =>
       _$UserUpdateFromJson(json);
 
@@ -276,6 +292,8 @@ class _UserUpdate implements UserUpdate {
   final String? phone;
   @override
   final String? address;
+  @override
+  final String? description;
   @override
   final String? password;
   @override
@@ -296,6 +314,8 @@ class _UserUpdate implements UserUpdate {
             (identical(other.fio, fio) || other.fio == fio) &&
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.address, address) || other.address == address) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
             (identical(other.password, password) ||
                 other.password == password) &&
             (identical(other.imageUrl, imageUrl) ||
@@ -304,12 +324,12 @@ class _UserUpdate implements UserUpdate {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, fio, phone, address, password, imageUrl);
+  int get hashCode => Object.hash(
+      runtimeType, fio, phone, address, description, password, imageUrl);
 
   @override
   String toString() {
-    return 'UserUpdate(fio: $fio, phone: $phone, address: $address, password: $password, imageUrl: $imageUrl)';
+    return 'UserUpdate(fio: $fio, phone: $phone, address: $address, description: $description, password: $password, imageUrl: $imageUrl)';
   }
 }
 

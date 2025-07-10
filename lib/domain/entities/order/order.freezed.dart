@@ -28,7 +28,10 @@ mixin _$Order {
   DateTime get endTime;
   @JsonKey(name: 'user_id')
   String get userId;
+  @JsonKey(name: 'views_count')
   int get viewed;
+  @JsonKey(name: 'waiting_user_ids')
+  List<String> get waitingUserIds;
 
   /// Serializes this Order to a JSON map.
   Map<String, dynamic> toJson();
@@ -51,17 +54,31 @@ mixin _$Order {
                 other.beginTime == beginTime) &&
             (identical(other.endTime, endTime) || other.endTime == endTime) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.viewed, viewed) || other.viewed == viewed));
+            (identical(other.viewed, viewed) || other.viewed == viewed) &&
+            const DeepCollectionEquality()
+                .equals(other.waitingUserIds, waitingUserIds));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, description, imageUrl,
-      status, price, address, beginTime, endTime, userId, viewed);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      description,
+      imageUrl,
+      status,
+      price,
+      address,
+      beginTime,
+      endTime,
+      userId,
+      viewed,
+      const DeepCollectionEquality().hash(waitingUserIds));
 
   @override
   String toString() {
-    return 'Order(id: $id, title: $title, description: $description, imageUrl: $imageUrl, status: $status, price: $price, address: $address, beginTime: $beginTime, endTime: $endTime, userId: $userId, viewed: $viewed)';
+    return 'Order(id: $id, title: $title, description: $description, imageUrl: $imageUrl, status: $status, price: $price, address: $address, beginTime: $beginTime, endTime: $endTime, userId: $userId, viewed: $viewed, waitingUserIds: $waitingUserIds)';
   }
 }
 
@@ -79,7 +96,10 @@ class _Order implements Order {
       @JsonKey(name: 'begin_time') required this.beginTime,
       @JsonKey(name: 'end_time') required this.endTime,
       @JsonKey(name: 'user_id') required this.userId,
-      this.viewed = 0});
+      @JsonKey(name: 'views_count') this.viewed = 0,
+      @JsonKey(name: 'waiting_user_ids')
+      final List<String> waitingUserIds = const <String>[]})
+      : _waitingUserIds = waitingUserIds;
   factory _Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
   @override
@@ -106,8 +126,16 @@ class _Order implements Order {
   @JsonKey(name: 'user_id')
   final String userId;
   @override
-  @JsonKey()
+  @JsonKey(name: 'views_count')
   final int viewed;
+  final List<String> _waitingUserIds;
+  @override
+  @JsonKey(name: 'waiting_user_ids')
+  List<String> get waitingUserIds {
+    if (_waitingUserIds is EqualUnmodifiableListView) return _waitingUserIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_waitingUserIds);
+  }
 
   @override
   Map<String, dynamic> toJson() {
@@ -134,17 +162,31 @@ class _Order implements Order {
                 other.beginTime == beginTime) &&
             (identical(other.endTime, endTime) || other.endTime == endTime) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.viewed, viewed) || other.viewed == viewed));
+            (identical(other.viewed, viewed) || other.viewed == viewed) &&
+            const DeepCollectionEquality()
+                .equals(other._waitingUserIds, _waitingUserIds));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, description, imageUrl,
-      status, price, address, beginTime, endTime, userId, viewed);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      description,
+      imageUrl,
+      status,
+      price,
+      address,
+      beginTime,
+      endTime,
+      userId,
+      viewed,
+      const DeepCollectionEquality().hash(_waitingUserIds));
 
   @override
   String toString() {
-    return 'Order(id: $id, title: $title, description: $description, imageUrl: $imageUrl, status: $status, price: $price, address: $address, beginTime: $beginTime, endTime: $endTime, userId: $userId, viewed: $viewed)';
+    return 'Order(id: $id, title: $title, description: $description, imageUrl: $imageUrl, status: $status, price: $price, address: $address, beginTime: $beginTime, endTime: $endTime, userId: $userId, viewed: $viewed, waitingUserIds: $waitingUserIds)';
   }
 }
 

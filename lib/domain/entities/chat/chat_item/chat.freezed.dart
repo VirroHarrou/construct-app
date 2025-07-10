@@ -16,11 +16,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Chat {
   String get id;
-  @JsonKey(name: 'last_message')
-  String get content;
-  @JsonKey(name: 'last_message_at')
-  DateTime get createdAt;
   String get username;
+  @JsonKey(name: 'last_message')
+  ChatMessageResponse get lastMessage;
 
   /// Serializes this Chat to a JSON map.
   Map<String, dynamic> toJson();
@@ -31,21 +29,19 @@ mixin _$Chat {
         (other.runtimeType == runtimeType &&
             other is Chat &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.content, content) || other.content == content) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
             (identical(other.username, username) ||
-                other.username == username));
+                other.username == username) &&
+            (identical(other.lastMessage, lastMessage) ||
+                other.lastMessage == lastMessage));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, content, createdAt, username);
+  int get hashCode => Object.hash(runtimeType, id, username, lastMessage);
 
   @override
   String toString() {
-    return 'Chat(id: $id, content: $content, createdAt: $createdAt, username: $username)';
+    return 'Chat(id: $id, username: $username, lastMessage: $lastMessage)';
   }
 }
 
@@ -54,21 +50,17 @@ mixin _$Chat {
 class _Chat implements Chat {
   const _Chat(
       {required this.id,
-      @JsonKey(name: 'last_message') required this.content,
-      @JsonKey(name: 'last_message_at') required this.createdAt,
-      required this.username});
+      required this.username,
+      @JsonKey(name: 'last_message') required this.lastMessage});
   factory _Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
 
   @override
   final String id;
   @override
-  @JsonKey(name: 'last_message')
-  final String content;
-  @override
-  @JsonKey(name: 'last_message_at')
-  final DateTime createdAt;
-  @override
   final String username;
+  @override
+  @JsonKey(name: 'last_message')
+  final ChatMessageResponse lastMessage;
 
   @override
   Map<String, dynamic> toJson() {
@@ -83,21 +75,19 @@ class _Chat implements Chat {
         (other.runtimeType == runtimeType &&
             other is _Chat &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.content, content) || other.content == content) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
             (identical(other.username, username) ||
-                other.username == username));
+                other.username == username) &&
+            (identical(other.lastMessage, lastMessage) ||
+                other.lastMessage == lastMessage));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, content, createdAt, username);
+  int get hashCode => Object.hash(runtimeType, id, username, lastMessage);
 
   @override
   String toString() {
-    return 'Chat(id: $id, content: $content, createdAt: $createdAt, username: $username)';
+    return 'Chat(id: $id, username: $username, lastMessage: $lastMessage)';
   }
 }
 

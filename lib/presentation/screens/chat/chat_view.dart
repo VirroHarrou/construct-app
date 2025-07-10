@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:construct/domain/entities/chat/chat_item/chat.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/presentation/screens/chat/chat_item.dart';
@@ -20,7 +22,10 @@ class ChatView extends ConsumerStatefulWidget {
 class _ChatViewState extends ConsumerState<ChatView> {
   final List<Chat> chats = [];
   final List<Chat> sortedChats = [];
+  final searchFilter = TextEditingController();
   User? user;
+  Timer? _debounce; // Таймер для задержки поиска
+  String currentSort = 'Все';
 
   Future<void> getChats(WidgetRef ref) async {
     try {
@@ -35,12 +40,15 @@ class _ChatViewState extends ConsumerState<ChatView> {
   }
 
   Future<void> getMe() async {
-    user = await ref.read(userServiceProvider).getMe();
-    setState(() {});
+    try {
+      user = await ref.read(userServiceProvider).getMe();
+      setState(() {});
+    } catch (_) {}
   }
 
   List<Chat> sortChats(List<Chat> chats, String sort) {
     final newChats = List<Chat>.from(chats);
+    if (searchFilter.text.isNotEmpty) {}
     switch (sort) {
       case "Я заказчик":
         newChats.removeWhere((chat) => chat.id != user?.id);
@@ -54,11 +62,54 @@ class _ChatViewState extends ConsumerState<ChatView> {
     return newChats;
   }
 
+  List<Chat> filterAndSortChats(List<Chat> chats, String query) {
+    if (query.isEmpty) {
+      return sortChats(chats, currentSort);
+    }
+
+    final lowerQuery = query.toLowerCase();
+    final exactMatches = <Chat>[];
+    final partialMatches = <Chat>[];
+
+    for (final chat in chats) {
+      final username = chat.username.toLowerCase();
+      if (username == lowerQuery) {
+        exactMatches.add(chat);
+      } else if (username.contains(lowerQuery)) {
+        partialMatches.add(chat);
+      }
+    }
+
+    return [...exactMatches, ...partialMatches];
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) {
+      _debounce?.cancel();
+    }
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        sortedChats.clear();
+        sortedChats.addAll(filterAndSortChats(chats, searchFilter.text));
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getMe();
     getChats(ref);
+    searchFilter.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    searchFilter.removeListener(_onSearchChanged);
+    searchFilter.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,7 +126,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
               Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 18.0,
-                  horizontal: 18,
+                  horizontal: 18.0,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -94,7 +145,15 @@ class _ChatViewState extends ConsumerState<ChatView> {
                       child: TextField(
                         style: TextStyle(
                             color: Colors.white, height: 0.2, fontSize: 16),
-                        controller: TextEditingController(),
+                        controller: searchFilter,
+                        onEditingComplete: () {
+                          setState(() {
+                            sortedChats.clear();
+                            sortedChats.addAll(
+                              filterAndSortChats(chats, searchFilter.text),
+                            );
+                          });
+                        },
                         decoration: InputDecoration(
                           labelText: 'Поиск',
                           labelStyle:
@@ -138,10 +197,12 @@ class _ChatViewState extends ConsumerState<ChatView> {
                   ),
                   child: RadioWidget(
                     onChanged: (value) {
-                      final newData = sortChats(chats, value);
                       setState(() {
+                        currentSort = value;
                         sortedChats.clear();
-                        sortedChats.addAll(newData);
+                        sortedChats.addAll(
+                          filterAndSortChats(chats, searchFilter.text),
+                        );
                       });
                     },
                   ),
@@ -152,10 +213,13 @@ class _ChatViewState extends ConsumerState<ChatView> {
         ),
         sortedChats.isNotEmpty
             ? SliverList.builder(
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
-                  child: ChatItem(message: sortedChats[index]),
-                ),
+                itemBuilder: (context, index) {
+                  final chatItem = ChatItem(chat: sortedChats[index]);
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+                    child: chatItem,
+                  );
+                },
                 itemCount: sortedChats.length,
               )
             : SliverFillRemaining(

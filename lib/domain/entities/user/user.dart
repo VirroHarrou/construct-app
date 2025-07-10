@@ -12,6 +12,7 @@ sealed class User with _$User {
     required String phone,
     required String address,
     required String inn,
+    String? description,
     String? imageUrl,
     String? companyId,
     Company? company,
@@ -42,6 +43,7 @@ sealed class UserUpdate with _$UserUpdate {
     String? fio,
     String? phone,
     String? address,
+    String? description,
     String? password,
     String? imageUrl,
   }) = _UserUpdate;

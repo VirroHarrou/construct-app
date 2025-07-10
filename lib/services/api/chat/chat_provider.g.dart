@@ -159,7 +159,7 @@ class _ChatUpdateStreamProviderElement
   String get token => (origin as ChatUpdateStreamProvider).token;
 }
 
-String _$chatMessagesHash() => r'7c437b8179b685eeabe8499da7f5c1c4dbc6f23c';
+String _$chatMessagesHash() => r'39bf2612501f2a922a1885a67e08ad42b2ea5912';
 
 /// See also [ChatMessages].
 @ProviderFor(ChatMessages)
@@ -174,7 +174,7 @@ final chatMessagesProvider = AutoDisposeNotifierProvider<ChatMessages,
 );
 
 typedef _$ChatMessages = AutoDisposeNotifier<List<ChatMessageResponse>>;
-String _$chatControllerHash() => r'a3402d480165baa7642b57e814b0e96f2ef804d3';
+String _$chatControllerHash() => r'df9242ed9bac7e1027cb6d9d969194e3044fd190';
 
 abstract class _$ChatController
     extends BuildlessAutoDisposeAsyncNotifier<void> {

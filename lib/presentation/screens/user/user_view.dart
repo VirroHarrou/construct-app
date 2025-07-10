@@ -1,5 +1,6 @@
 import 'package:construct/domain/entities/review/review.dart';
 import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/presentation/screens/user/user_edit.dart';
 import 'package:construct/services/api/auth_service.dart';
 import 'package:construct/services/api/user_service.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +99,15 @@ class _UserViewState extends ConsumerState<UserView> {
                         ),
                       ),
                     ),
-                    onTap: () => ref.read(authServiceProvider).logout(),
+                    onTap: () async {
+                      final result = await Navigator.of(context).pushNamed(
+                        UserEditView.routeName,
+                        arguments: user!,
+                      );
+                      if (result != null) {
+                        setState(() => user = result as User);
+                      }
+                    },
                   ),
                   InkWell(
                     child: Padding(
@@ -121,72 +130,7 @@ class _UserViewState extends ConsumerState<UserView> {
           ),
           SliverList(
             delegate: SliverChildListDelegate.fixed(
-              [
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: SizedBox(
-                    height: 354,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          top: 34,
-                          child: Container(
-                            padding: EdgeInsets.only(top: 66),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: colorScheme.primaryContainer,
-                            ),
-                            child: user == null
-                                ? Center(child: CircularProgressIndicator())
-                                : Column(
-                                    spacing: 10,
-                                    children: [
-                                      Text(
-                                        user!.fio,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      IntrinsicHeight(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            _buildInfItem('1.1K', 'Просмотры'),
-                                            VerticalDivider(
-                                              color:
-                                                  colorScheme.onSurfaceVariant,
-                                              indent: 5,
-                                              endIndent: 5,
-                                            ),
-                                            _buildInfItem('52', 'Отзывы'),
-                                            VerticalDivider(
-                                              color:
-                                                  colorScheme.onSurfaceVariant,
-                                              indent: 5,
-                                              endIndent: 5,
-                                            ),
-                                            _buildInfItem('65', 'Работы'),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(user!.address),
-                                    ],
-                                  ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topCenter,
-                          child: CircleAvatar(
-                            backgroundColor: colorScheme.onSurfaceVariant,
-                            radius: 45,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              ],
+              [_buildProfile()],
             ),
           ),
           reviews.isEmpty
@@ -198,6 +142,73 @@ class _UserViewState extends ConsumerState<UserView> {
                   itemCount: reviews.length,
                 ),
         ],
+      ),
+    );
+  }
+
+  Padding _buildProfile() {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(18.0),
+      child: SizedBox(
+        height: 354,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              top: 34,
+              child: Container(
+                padding: EdgeInsets.only(top: 66),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: colorScheme.primaryContainer,
+                ),
+                child: user == null
+                    ? Center(child: CircularProgressIndicator())
+                    : Column(
+                        spacing: 10,
+                        children: [
+                          Text(
+                            user!.fio,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          IntrinsicHeight(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildInfItem('1.1K', 'Просмотры'),
+                                VerticalDivider(
+                                  color: colorScheme.onSurfaceVariant,
+                                  indent: 5,
+                                  endIndent: 5,
+                                ),
+                                _buildInfItem('52', 'Отзывы'),
+                                VerticalDivider(
+                                  color: colorScheme.onSurfaceVariant,
+                                  indent: 5,
+                                  endIndent: 5,
+                                ),
+                                _buildInfItem('65', 'Работы'),
+                              ],
+                            ),
+                          ),
+                          Text(user!.description != null
+                              ? user!.description!
+                              : user!.address),
+                        ],
+                      ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: CircleAvatar(
+                backgroundColor: colorScheme.onSurfaceVariant,
+                radius: 45,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
