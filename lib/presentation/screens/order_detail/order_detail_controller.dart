@@ -1,90 +1,109 @@
-// order_detail_controller.dart
-import 'package:construct/core/utils/app_providers.dart';
 import 'package:construct/domain/entities/order/order.dart';
 import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/presentation/screens/order_detail/order_detail_state.dart';
 import 'package:construct/services/api/order_service.dart';
 import 'package:construct/services/api/user_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class OrderDetailState {
-  final User? user;
-  final List<User> waitingUsers;
-  final bool isResponding;
-  final bool hasResponded;
-
-  OrderDetailState({
-    this.user,
-    this.waitingUsers = const [],
-    this.isResponding = false,
-    this.hasResponded = false,
-  });
-
-  OrderDetailState copyWith({
-    User? user,
-    List<User>? waitingUsers,
-    bool? isResponding,
-    bool? hasResponded,
-  }) {
-    return OrderDetailState(
-      user: user ?? this.user,
-      isResponding: isResponding ?? this.isResponding,
-      hasResponded: hasResponded ?? this.hasResponded,
-      waitingUsers: waitingUsers ?? this.waitingUsers,
-    );
-  }
-}
-
 class OrderDetailController
     extends AutoDisposeFamilyNotifier<OrderDetailState, Order> {
+  late final OrderService _orderService = ref.read(orderServiceProvider);
+  late final UserService _userService = ref.read(userServiceProvider);
+
   @override
   OrderDetailState build(Order arg) {
-    _init(arg);
-    return OrderDetailState();
+    _initialize(arg);
+    return OrderDetailState(order: arg);
   }
 
-  Future<void> _init(Order order) async {
-    final userService = ref.read(userServiceProvider);
+  Future<void> _initialize(Order order) async {
     try {
-      final newUser = await userService.getUser(order.userId);
-      await ref.read(orderServiceProvider).markOrderViewed(order.id);
-      state = state.copyWith(user: newUser);
-
-      if (order.waitingUserIds.isNotEmpty) {
-        loadWaitingUsers(userService, order.waitingUserIds);
-      } else {
-        state = state.copyWith(waitingUsers: []);
-      }
-    } catch (_) {}
+      final currentUser = await _userService.getMe();
+      state = state.copyWith(me: currentUser);
+      await loadData(order);
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+    }
   }
 
-  Future<void> respondToOrder(String orderId) async {
-    final currentUser = await ref.read(currentUserProvider.future);
+  Future<void> loadData(Order order) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final user = await _userService.getUser(order.userId);
+      await _orderService.markOrderViewed(order.id);
+
+      final connectedUsers = order.connectedUserIds.isNotEmpty
+          ? await _loadConnectedUsers(order.connectedUserIds)
+          : <User>[];
+
+      state = state.copyWith(
+        user: user,
+        connectedUsers: connectedUsers,
+        isLoading: false,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> reloadOrder() async {
+    try {
+      final updatedOrder = await _orderService.getOrder(state.order.id);
+      await loadData(updatedOrder);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> respondToOrder() async {
+    final currentUser = state.me;
     if (currentUser == null) return;
 
     state = state.copyWith(isResponding: true);
 
     try {
-      await ref.read(orderServiceProvider).updateOrderStatus(
-            orderId,
-            status: 'ожидание',
-          );
+      await _orderService.updateOrderStatus(
+        state.order.id,
+        status: 'ожидание',
+      );
+
       state = state.copyWith(
+        order: state.order.copyWith(status: 'ожидание'),
         isResponding: false,
-        hasResponded: true,
+        connectedUsers: [
+          ...state.connectedUsers,
+          if (!state.connectedUsers.any((u) => u.id == currentUser.id))
+            currentUser,
+        ],
       );
     } catch (e) {
-      print(e);
       state = state.copyWith(isResponding: false);
       rethrow;
     }
   }
 
-  Future<void> loadWaitingUsers(UserService service, List<String> ids) async {
+  Future<void> selectPerformer(String userId) async {
     try {
-      final users = await Future.wait(ids.map((id) => service.getUser(id)));
-      state = state.copyWith(waitingUsers: users);
+      await _orderService.updateOrderStatus(
+        state.order.id,
+        status: 'в работе',
+        userId: userId,
+      );
+      await reloadOrder();
+    } catch (_) {}
+  }
+
+  void toggleDescription() {
+    state = state.copyWith(showFullDescription: !state.showFullDescription);
+  }
+
+  Future<List<User>> _loadConnectedUsers(List<String> ids) async {
+    try {
+      return await Future.wait(ids.map(_userService.getUser));
     } catch (e) {
       print("Ошибка загрузки пользователей: $e");
+      return [];
     }
   }
 }

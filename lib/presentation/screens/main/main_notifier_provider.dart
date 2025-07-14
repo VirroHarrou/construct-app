@@ -30,13 +30,11 @@ class MainState {
   }
 }
 
-// Провайдер для состояния
 final mainNotifierProvider =
     StateNotifierProvider<MainNotifier, MainState>((ref) {
   return MainNotifier(ref);
 });
 
-// Контроллер состояния
 class MainNotifier extends StateNotifier<MainState> {
   final Ref ref;
 

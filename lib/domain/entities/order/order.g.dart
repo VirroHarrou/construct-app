@@ -10,7 +10,8 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
-      imageUrl: json['imageUrl'] as String?,
+      imageUrl: json['image_url'] as String?,
+      logoUrl: json['logo_url'] as String?,
       status: json['status'] as String?,
       price: (json['price'] as num).toDouble(),
       address: json['address'] as String,
@@ -18,7 +19,7 @@ _Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       endTime: DateTime.parse(json['end_time'] as String),
       userId: json['user_id'] as String,
       viewed: (json['views_count'] as num?)?.toInt() ?? 0,
-      waitingUserIds: (json['waiting_user_ids'] as List<dynamic>?)
+      connectedUserIds: (json['connected_user_ids'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const <String>[],
@@ -28,7 +29,8 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
       'description': instance.description,
-      'imageUrl': instance.imageUrl,
+      'image_url': instance.imageUrl,
+      'logo_url': instance.logoUrl,
       'status': instance.status,
       'price': instance.price,
       'address': instance.address,
@@ -36,13 +38,14 @@ Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
       'end_time': instance.endTime.toIso8601String(),
       'user_id': instance.userId,
       'views_count': instance.viewed,
-      'waiting_user_ids': instance.waitingUserIds,
+      'connected_user_ids': instance.connectedUserIds,
     };
 
 _OrderCreate _$OrderCreateFromJson(Map<String, dynamic> json) => _OrderCreate(
       title: json['title'] as String,
       description: json['description'] as String?,
       imageUrl: json['image_url'] as String?,
+      logoUrl: json['logo_url'] as String?,
       price: (json['price'] as num).toDouble(),
       address: json['address'] as String,
       beginTime: DateTime.parse(json['begin_time'] as String),
@@ -54,6 +57,7 @@ Map<String, dynamic> _$OrderCreateToJson(_OrderCreate instance) =>
       'title': instance.title,
       'description': instance.description,
       'image_url': instance.imageUrl,
+      'logo_url': instance.logoUrl,
       'price': instance.price,
       'address': instance.address,
       'begin_time': instance.beginTime.toIso8601String(),
@@ -64,6 +68,7 @@ _OrderUpdate _$OrderUpdateFromJson(Map<String, dynamic> json) => _OrderUpdate(
       title: json['title'] as String?,
       description: json['description'] as String?,
       imageUrl: json['image_url'] as String?,
+      logoUrl: json['logo_url'] as String?,
       price: (json['price'] as num?)?.toDouble(),
       address: json['address'] as String?,
       beginTime: json['begin_time'] == null
@@ -79,6 +84,7 @@ Map<String, dynamic> _$OrderUpdateToJson(_OrderUpdate instance) =>
       'title': instance.title,
       'description': instance.description,
       'image_url': instance.imageUrl,
+      'logo_url': instance.logoUrl,
       'price': instance.price,
       'address': instance.address,
       'begin_time': instance.beginTime?.toIso8601String(),

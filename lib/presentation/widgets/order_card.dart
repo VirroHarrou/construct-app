@@ -1,8 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:construct/core/utils/compare_time.dart';
 import 'package:construct/core/utils/extensions.dart';
 import 'package:construct/domain/entities/order/order.dart';
 import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/order_editor/order_editor_view.dart';
+import 'package:dart_extensions/dart_extensions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class OrderCard extends StatelessWidget {
@@ -21,6 +24,7 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(6.0),
@@ -36,62 +40,74 @@ class OrderCard extends StatelessWidget {
                 offset: Offset(0, 4),
               ),
             ]),
-        child: Row(
-          spacing: 10,
-          children: [
-            // CachedNetworkImage(
-            //   imageUrl: order.imageUrl ?? '',
-            //   imageBuilder: (context, imageProvider) => Image(
-            //     image: imageProvider,
-            //     fit: BoxFit.cover,
-            //     width: 105,
-            //   ),
-            //   progressIndicatorBuilder: (context, url, progress) =>
-            //       CupertinoActivityIndicator(),
-            //   errorWidget: (context, url, error) => Container(
-            //     width: 105,
-            //   ),
-            // ),
-            Flexible(
-              fit: FlexFit.loose,
-              child: Column(
-                spacing: 16,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        getComparedTime(order.beginTime, S.of(context)),
-                        style: TextStyle(
-                          color: Colors.grey,
+        child: IntrinsicHeight(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: order.logoUrl.isEmptyOrNull
+                    ? Container(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      )
+                    : CachedNetworkImage(
+                        width: 105,
+                        fit: BoxFit.cover,
+                        imageUrl: order.logoUrl!,
+                        progressIndicatorBuilder: (_, __, progress) => Center(
+                          child: CircularProgressIndicator(
+                            value: progress.progress,
+                          ),
                         ),
                       ),
-                      _buildMenuButton(context),
-                    ],
-                  ),
-                  Text(order.title),
-                  maximize
-                      ? Text(
-                          order.description?.characters.take(90).string ?? '')
-                      : Center(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("${order.price} руб."),
-                      if (order.status != null)
+              ),
+              if (!order.logoUrl.isEmptyOrNull) SizedBox(width: 10),
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 16,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
-                          order.status!.capitalize(),
+                          getComparedTime(order.beginTime, S.of(context)),
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        _buildMenuButton(context),
+                      ],
+                    ),
+                    Text(
+                      order.title,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (maximize) ...[
+                      Text(
+                        order.description ?? '',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                      ),
+                    ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("${order.price} руб."),
+                        Text(
+                          order.status?.capitalize() ?? 'Открыто',
                           style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                    ],
-                  ),
-                ],
-              ),
-            )
-          ],
+                      ],
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -99,6 +115,7 @@ class OrderCard extends StatelessWidget {
 
   Widget _buildMenuButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    if (!isMy) return SizedBox.shrink();
     return MenuAnchor(
       controller: menuController,
       style: MenuStyle(
@@ -110,23 +127,21 @@ class OrderCard extends StatelessWidget {
         ),
       ),
       builder: (context, controller, child) {
-        return IconButton(
-          icon: Icon(Icons.more_horiz, color: colorScheme.onSurfaceVariant),
-          onPressed: isMy
-              ? () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                }
-              : null,
+        return InkWell(
+          child: Icon(Icons.more_horiz, color: colorScheme.onSurfaceVariant),
+          onTap: () {
+            if (controller.isOpen) {
+              controller.close();
+            } else {
+              controller.open();
+            }
+          },
         );
       },
       menuChildren: [
         InkWell(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: const Text(
               'Редактировать заказ',
               style: TextStyle(

@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:construct/domain/entities/company/company.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -13,8 +15,8 @@ sealed class User with _$User {
     required String address,
     required String inn,
     String? description,
-    String? imageUrl,
-    String? companyId,
+    @JsonKey(name: 'image_url') String? imageUrl,
+    @JsonKey(name: 'company_id') String? companyId,
     Company? company,
   }) = _User;
 
@@ -28,8 +30,8 @@ sealed class UserCreate with _$UserCreate {
     required String phone,
     required String address,
     required String inn,
-    String? imageUrl,
-    String? companyId,
+    @JsonKey(name: 'image_url') String? imageUrl,
+    @JsonKey(name: 'company_id') String? companyId,
     required String password,
   }) = _UserCreate;
 
@@ -45,7 +47,7 @@ sealed class UserUpdate with _$UserUpdate {
     String? address,
     String? description,
     String? password,
-    String? imageUrl,
+    @JsonKey(name: 'image_url') String? imageUrl,
   }) = _UserUpdate;
 
   factory UserUpdate.fromJson(Map<String, dynamic> json) =>

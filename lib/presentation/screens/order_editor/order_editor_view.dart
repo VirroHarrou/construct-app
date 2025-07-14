@@ -1,15 +1,16 @@
 import 'package:construct/core/utils/money_input_formatter.dart';
 import 'package:construct/domain/entities/order/order.dart';
 import 'package:construct/presentation/screens/navigation_view.dart';
-import 'package:construct/presentation/widgets/image_uploader.dart';
+import 'package:construct/presentation/widgets/date_selector.dart';
+import 'package:construct/presentation/widgets/image_uploader/image_uploader.dart';
 import 'package:construct/presentation/widgets/primary_text_field.dart';
 import 'package:construct/services/api/order_service.dart';
+import 'package:construct/services/dio_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:construct/core/utils/extensions.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class OrderEditorView extends ConsumerStatefulWidget {
   final Order? order;
@@ -24,7 +25,8 @@ class OrderEditorView extends ConsumerStatefulWidget {
 
 class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
   final titleController = TextEditingController();
-  final photoController = TextEditingController();
+  final imageUrlController = TextEditingController();
+  final logoUrlController = TextEditingController();
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
   final addressController = TextEditingController();
@@ -85,7 +87,8 @@ class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
     super.initState();
     if (widget.order != null) {
       titleController.text = widget.order!.title;
-      photoController.text = widget.order!.imageUrl ?? '';
+      imageUrlController.text = widget.order!.imageUrl ?? '';
+      logoUrlController.text = widget.order!.logoUrl ?? '';
       descriptionController.text = widget.order!.description ?? '';
       priceController.text = widget.order!.price.toString();
       addressController.text = widget.order!.address;
@@ -97,11 +100,25 @@ class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
   }
 
   @override
+  void dispose() {
+    titleController.dispose();
+    imageUrlController.dispose();
+    logoUrlController.dispose();
+    descriptionController.dispose();
+    priceController.dispose();
+    addressController.dispose();
+    beginTimeController.dispose();
+    endTimeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        backgroundColor: colorScheme.surface,
         floatingActionButton: FloatingActionButton(
           onPressed: () => Navigator.of(context).pop(),
           elevation: 0,
@@ -161,13 +178,24 @@ class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
                     maxLines: 5,
                   ),
                   ImageUploader(
-                    widget.order?.imageUrl,
+                    imageUrl: imageUrlController.text,
                     label: 'Фото:',
-                    height: 128,
+                    height: 134,
+                    onImageUploaded: (value) {
+                      print(value);
+                      setState(() {
+                        imageUrlController.text = value;
+                      });
+                    },
                   ),
                   ImageUploader(
-                    widget.order?.imageUrl,
+                    imageUrl: logoUrlController.text,
                     label: 'Логотип:',
+                    onImageUploaded: (value) {
+                      setState(() {
+                        logoUrlController.text = value;
+                      });
+                    },
                   ),
                   PrimaryTextField(
                     textEditingController: descriptionController,
@@ -198,7 +226,10 @@ class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
                     textCapitalization: TextCapitalization.none,
                   ),
                   SizedBox(
-                    child: _buildDateSelector(),
+                    child: DateSelector(
+                      beginTimeController: beginTimeController,
+                      endTimeController: endTimeController,
+                    ),
                   ),
                   if (errorMessage != null)
                     Text(
@@ -220,6 +251,13 @@ class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
                           final order = OrderCreate(
                             title: titleController.text,
                             price: priceController.text.parsePrice(),
+                            imageUrl:
+                                imageUrlController.text.startsWith(baseUrl)
+                                    ? null
+                                    : imageUrlController.text,
+                            logoUrl: logoUrlController.text.startsWith(baseUrl)
+                                ? null
+                                : logoUrlController.text,
                             description: descriptionController.text,
                             address: addressController.text,
                             beginTime: beginDate,
@@ -230,6 +268,13 @@ class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
                           final order = OrderUpdate(
                             title: titleController.text,
                             price: priceController.text.parsePrice(),
+                            imageUrl:
+                                imageUrlController.text.startsWith(baseUrl)
+                                    ? imageUrlController.text
+                                    : null,
+                            logoUrl: logoUrlController.text.startsWith(baseUrl)
+                                ? logoUrlController.text
+                                : null,
                             description: descriptionController.text,
                             address: addressController.text,
                             beginTime: beginDate,
@@ -254,122 +299,6 @@ class _OrderEditorViewState extends ConsumerState<OrderEditorView> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDateSelector() {
-    final colorScheme = Theme.of(context).colorScheme;
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
-      borderSide: BorderSide(
-        color: colorScheme.onSurfaceVariant,
-        width: 1,
-      ),
-    );
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Дата оказания услуги:',
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0, bottom: 4),
-                    child: Text(
-                      'Начало',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                  TextField(
-                    controller: beginTimeController,
-                    keyboardType: TextInputType.text,
-                    cursorColor: Colors.black,
-                    maxLines: 1,
-                    inputFormatters: [
-                      MaskTextInputFormatter(
-                        mask: "xx.xx.xxxx",
-                        filter: {
-                          "x": RegExp(r'\d'),
-                        },
-                      )
-                    ],
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                        fontFamily: 'Open Sans',
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 14,
-                      ),
-                      hintText: "13.05.2025",
-                      enabledBorder: border,
-                      border: border,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0, bottom: 4),
-                    child: Text(
-                      'Окончание',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                  TextField(
-                    controller: endTimeController,
-                    keyboardType: TextInputType.text,
-                    cursorColor: Colors.black,
-                    maxLines: 1,
-                    inputFormatters: [
-                      MaskTextInputFormatter(
-                        mask: "xx.xx.xxxx",
-                        filter: {
-                          "x": RegExp(r'\d'),
-                        },
-                      ),
-                    ],
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                        fontFamily: 'Open Sans',
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 14,
-                      ),
-                      hintText: "13.05.2025",
-                      enabledBorder: border,
-                      border: border,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

@@ -21,7 +21,9 @@ mixin _$User {
   String get address;
   String get inn;
   String? get description;
+  @JsonKey(name: 'image_url')
   String? get imageUrl;
+  @JsonKey(name: 'company_id')
   String? get companyId;
   Company? get company;
 
@@ -68,8 +70,8 @@ class _User implements User {
       required this.address,
       required this.inn,
       this.description,
-      this.imageUrl,
-      this.companyId,
+      @JsonKey(name: 'image_url') this.imageUrl,
+      @JsonKey(name: 'company_id') this.companyId,
       this.company});
   factory _User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
@@ -86,8 +88,10 @@ class _User implements User {
   @override
   final String? description;
   @override
+  @JsonKey(name: 'image_url')
   final String? imageUrl;
   @override
+  @JsonKey(name: 'company_id')
   final String? companyId;
   @override
   final Company? company;
@@ -135,7 +139,9 @@ mixin _$UserCreate {
   String get phone;
   String get address;
   String get inn;
+  @JsonKey(name: 'image_url')
   String? get imageUrl;
+  @JsonKey(name: 'company_id')
   String? get companyId;
   String get password;
 
@@ -178,8 +184,8 @@ class _UserCreate implements UserCreate {
       required this.phone,
       required this.address,
       required this.inn,
-      this.imageUrl,
-      this.companyId,
+      @JsonKey(name: 'image_url') this.imageUrl,
+      @JsonKey(name: 'company_id') this.companyId,
       required this.password});
   factory _UserCreate.fromJson(Map<String, dynamic> json) =>
       _$UserCreateFromJson(json);
@@ -193,8 +199,10 @@ class _UserCreate implements UserCreate {
   @override
   final String inn;
   @override
+  @JsonKey(name: 'image_url')
   final String? imageUrl;
   @override
+  @JsonKey(name: 'company_id')
   final String? companyId;
   @override
   final String password;
@@ -241,6 +249,7 @@ mixin _$UserUpdate {
   String? get address;
   String? get description;
   String? get password;
+  @JsonKey(name: 'image_url')
   String? get imageUrl;
 
   /// Serializes this UserUpdate to a JSON map.
@@ -282,7 +291,7 @@ class _UserUpdate implements UserUpdate {
       this.address,
       this.description,
       this.password,
-      this.imageUrl});
+      @JsonKey(name: 'image_url') this.imageUrl});
   factory _UserUpdate.fromJson(Map<String, dynamic> json) =>
       _$UserUpdateFromJson(json);
 
@@ -297,6 +306,7 @@ class _UserUpdate implements UserUpdate {
   @override
   final String? password;
   @override
+  @JsonKey(name: 'image_url')
   final String? imageUrl;
 
   @override

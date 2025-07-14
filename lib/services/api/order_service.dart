@@ -80,7 +80,6 @@ class OrderService {
     }
   }
 
-  // Отметить заказ как просмотренный
   Future<void> markOrderViewed(String orderId, {String? status}) async {
     try {
       await _api.post(
@@ -92,11 +91,12 @@ class OrderService {
     }
   }
 
-  Future<void> updateOrderStatus(String orderId, {String? status}) async {
+  Future<void> updateOrderStatus(String orderId,
+      {String? status, String? userId}) async {
     try {
       await _api.put(
         '/orders/$orderId/status',
-        data: {'status': status},
+        data: {'status': status, 'user_id': userId},
       );
     } on DioException catch (e) {
       throw _handleApiError(e);

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:construct/domain/entities/review/review.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/presentation/screens/user/user_edit.dart';
@@ -203,8 +204,30 @@ class _UserViewState extends ConsumerState<UserView> {
             Align(
               alignment: Alignment.topCenter,
               child: CircleAvatar(
-                backgroundColor: colorScheme.onSurfaceVariant,
-                radius: 45,
+                radius: 45.0,
+                backgroundColor: Colors.transparent,
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: user?.imageUrl ?? '',
+                    width: 90,
+                    height: 90,
+                    fit: BoxFit.cover,
+                    progressIndicatorBuilder: (context, url, progress) =>
+                        Container(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: progress.progress,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      child: const Icon(Icons.person, size: 30),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

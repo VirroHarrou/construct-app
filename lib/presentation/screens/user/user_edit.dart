@@ -1,7 +1,7 @@
 import 'package:construct/core/utils/user_fields_validator.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/generated/l10n.dart';
-import 'package:construct/presentation/widgets/image_uploader.dart';
+import 'package:construct/presentation/widgets/image_uploader/image_uploader.dart';
 import 'package:construct/presentation/widgets/primary_text_field.dart';
 import 'package:construct/services/api/user_service.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +22,7 @@ class UserEditState extends ConsumerState<UserEditView> {
   final fioController = TextEditingController();
   final descriptionController = TextEditingController();
   final addressController = TextEditingController();
+  String? imageUrl;
   String? errorMessage;
   bool isUpdating = false;
   bool changed = false;
@@ -31,6 +32,7 @@ class UserEditState extends ConsumerState<UserEditView> {
     fioController.text = widget.user.fio;
     descriptionController.text = widget.user.description ?? '';
     addressController.text = widget.user.address;
+    imageUrl = widget.user.imageUrl;
     super.initState();
   }
 
@@ -98,10 +100,11 @@ class UserEditState extends ConsumerState<UserEditView> {
                   hintText: 'ул. Угличская, д. 155, г. Ярославль',
                 ),
                 ImageUploader(
-                  widget.user.imageUrl,
+                  imageUrl: imageUrl,
                   label: S.of(context).photo,
                   height: 128,
                   onImageUploaded: (value) {
+                    imageUrl = value;
                     setState(() => changed = true);
                   },
                 ),
@@ -153,7 +156,7 @@ class UserEditState extends ConsumerState<UserEditView> {
           ? descriptionController.text
           : null,
       phone: widget.user.phone,
-      imageUrl: widget.user.imageUrl,
+      imageUrl: imageUrl,
     );
     try {
       final user = await ref.read(userServiceProvider).updateUser(userUpdate);

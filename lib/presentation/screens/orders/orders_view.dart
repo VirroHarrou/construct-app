@@ -1,112 +1,39 @@
-import 'package:construct/domain/entities/order/order.dart';
-import 'package:construct/domain/entities/user/user.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:construct/presentation/screens/order_detail/order_detail_view.dart';
+import 'package:construct/presentation/screens/orders/orders_state.dart';
 import 'package:construct/presentation/screens/user/user_view.dart';
 import 'package:construct/presentation/widgets/order_card.dart';
 import 'package:construct/presentation/widgets/radio_widget.dart';
-import 'package:construct/services/api/order_service.dart';
-import 'package:construct/services/api/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class OrdersView extends ConsumerStatefulWidget {
+import 'orders_controller.dart';
+
+class OrdersView extends ConsumerWidget {
   const OrdersView({super.key});
 
   static const routeName = '/orders';
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _OrdersViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(ordersControllerProvider);
+    final controller = ref.read(ordersControllerProvider.notifier);
 
-class _OrdersViewState extends ConsumerState<OrdersView> {
-  User? user;
-  final List<Order> orders = [];
-  final List<Order> sortedOrders = [];
-
-  Future<void> getMe() async {
-    try {
-      user = await ref.read(userServiceProvider).getMe();
-      setState(() {});
-    } catch (_) {}
-  }
-
-  Future<void> loadOrders() async {
-    try {
-      final data = await ref.read(orderServiceProvider).getConnected();
-      setState(() {
-        orders.addAll(data);
-        sortedOrders.addAll(data);
-      });
-    } catch (_) {}
-  }
-
-  List<Order> sortOrders(List<Order> orders, String sort) {
-    final sortedOrders = List<Order>.from(orders);
-
-    switch (sort) {
-      case "Я заказчик":
-        sortedOrders.removeWhere((order) => order.userId != user?.id);
-        return sortedOrders;
-      case "Я исполнитель":
-        sortedOrders.removeWhere((order) => order.userId == user?.id);
-        return sortedOrders;
-      default:
-        break;
-    }
-    return orders;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getMe();
-    loadOrders();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          sortedOrders.isNotEmpty
-              ? SliverList.builder(
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 0.0,
-                        top: 20,
-                        left: 20,
-                        right: 20,
-                      ),
-                      child: OrderCard(
-                        order: sortedOrders[index],
-                        maximize: true,
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(
-                            OrderDetailView.routeName,
-                            arguments: sortedOrders[index],
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  itemCount: sortedOrders.length,
-                )
-              : SliverFillRemaining(
-                  child: Center(
-                    child: Text(
-                      "Пока здесь пусто\nНо скоро обязательно здесь будет много интересного!",
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () => controller.refresh(),
+        child: CustomScrollView(
+          slivers: [
+            _buildAppBar(context, controller, state),
+            _buildOrderList(state, controller),
+          ],
+        ),
       ),
     );
   }
 
-  SliverAppBar _buildAppBar() {
+  SliverAppBar _buildAppBar(
+      BuildContext context, OrdersController controller, OrdersState state) {
     return SliverAppBar(
       automaticallyImplyLeading: false,
       toolbarHeight: 200,
@@ -126,8 +53,30 @@ class _OrdersViewState extends ConsumerState<OrdersView> {
                   onTap: () =>
                       Navigator.of(context).pushNamed(UserView.routeName),
                   child: CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.white,
+                    radius: 22.0,
+                    backgroundColor: Colors.transparent,
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: state.user?.imageUrl ?? '',
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        progressIndicatorBuilder: (context, url, progress) =>
+                            Container(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: progress.progress,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          child: const Icon(Icons.person, size: 30),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Spacer(),
@@ -178,13 +127,7 @@ class _OrdersViewState extends ConsumerState<OrdersView> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: RadioWidget(
-                onChanged: (value) {
-                  final newData = sortOrders(orders, value);
-                  setState(() {
-                    sortedOrders.clear();
-                    sortedOrders.addAll(newData);
-                  });
-                },
+                onChanged: (value) => controller.sortOrders(value),
               ),
             ),
           ),
@@ -192,5 +135,57 @@ class _OrdersViewState extends ConsumerState<OrdersView> {
       ),
       flexibleSpace: FlexibleSpaceBar(),
     );
+  }
+
+  Widget _buildOrderList(OrdersState state, OrdersController controller) {
+    if (state.isLoading) {
+      return SliverFillRemaining(
+          child: Center(child: CircularProgressIndicator()));
+    }
+
+    if (state.isRefreshing) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    return state.sortedOrders.isNotEmpty
+        ? SliverList.builder(
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 0.0,
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                ),
+                child: OrderCard(
+                  order: state.sortedOrders[index],
+                  isMy: state.sortedOrders[index].userId == state.user?.id,
+                  maximize: true,
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed(
+                          OrderDetailView.routeName,
+                          arguments: state.sortedOrders[index],
+                        )
+                        .then((_) => controller.refresh());
+                  },
+                ),
+              );
+            },
+            itemCount: state.sortedOrders.length,
+          )
+        : SliverFillRemaining(
+            child: Center(
+              child: Text(
+                "Пока здесь пусто\nНо скоро обязательно здесь будет много интересного!",
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
   }
 }

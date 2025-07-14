@@ -124,6 +124,7 @@ class MainView extends ConsumerWidget {
           state.orders.isNotEmpty
               ? SliverList.builder(
                   itemBuilder: (context, index) {
+                    final order = state.orders[index];
                     return Padding(
                       padding: const EdgeInsets.only(
                         bottom: 0.0,
@@ -132,10 +133,10 @@ class MainView extends ConsumerWidget {
                         right: 20,
                       ),
                       child: OrderCard(
-                        order: state.orders[index],
-                        isMy: state.orders[index].userId == state.user?.id,
+                        order: order,
+                        isMy: order.userId == state.user?.id,
                         maximize: false,
-                        onPressed: () => navigateTo(state.orders[index].id),
+                        onPressed: () => navigateTo(order.id),
                       ),
                     );
                   },

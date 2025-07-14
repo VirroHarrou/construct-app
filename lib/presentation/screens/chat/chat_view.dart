@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:construct/domain/entities/chat/chat_item/chat.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/presentation/screens/chat/chat_item.dart';
@@ -135,8 +136,34 @@ class _ChatViewState extends ConsumerState<ChatView> {
                       onTap: () =>
                           Navigator.of(context).pushNamed(UserView.routeName),
                       child: CircleAvatar(
-                        radius: 22,
-                        backgroundColor: Colors.white,
+                        radius: 22.0,
+                        backgroundColor: Colors.transparent,
+                        child: ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: user?.imageUrl ?? '',
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                            progressIndicatorBuilder:
+                                (context, url, progress) => Container(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  value: progress.progress,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              child: const Icon(Icons.person, size: 30),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     Spacer(),

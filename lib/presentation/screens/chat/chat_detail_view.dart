@@ -79,6 +79,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
         final token = ref.watch(tokenProvider);
         return token.when(
           data: (validToken) {
+            // ignore: unused_local_variable
             final chatController =
                 ref.watch(chatControllerProvider(validToken, widget.user.id));
             final messages = ref.watch(chatMessagesProvider);
@@ -208,7 +209,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
               ),
               maxLines: 5,
               minLines: 1,
-              // onSubmitted: (_) => _sendMessage(),
             ),
           ),
           IconButton.filled(

@@ -13,8 +13,8 @@ _User _$UserFromJson(Map<String, dynamic> json) => _User(
       address: json['address'] as String,
       inn: json['inn'] as String,
       description: json['description'] as String?,
-      imageUrl: json['imageUrl'] as String?,
-      companyId: json['companyId'] as String?,
+      imageUrl: json['image_url'] as String?,
+      companyId: json['company_id'] as String?,
       company: json['company'] == null
           ? null
           : Company.fromJson(json['company'] as Map<String, dynamic>),
@@ -27,8 +27,8 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
       'address': instance.address,
       'inn': instance.inn,
       'description': instance.description,
-      'imageUrl': instance.imageUrl,
-      'companyId': instance.companyId,
+      'image_url': instance.imageUrl,
+      'company_id': instance.companyId,
       'company': instance.company,
     };
 
@@ -37,8 +37,8 @@ _UserCreate _$UserCreateFromJson(Map<String, dynamic> json) => _UserCreate(
       phone: json['phone'] as String,
       address: json['address'] as String,
       inn: json['inn'] as String,
-      imageUrl: json['imageUrl'] as String?,
-      companyId: json['companyId'] as String?,
+      imageUrl: json['image_url'] as String?,
+      companyId: json['company_id'] as String?,
       password: json['password'] as String,
     );
 
@@ -48,8 +48,8 @@ Map<String, dynamic> _$UserCreateToJson(_UserCreate instance) =>
       'phone': instance.phone,
       'address': instance.address,
       'inn': instance.inn,
-      'imageUrl': instance.imageUrl,
-      'companyId': instance.companyId,
+      'image_url': instance.imageUrl,
+      'company_id': instance.companyId,
       'password': instance.password,
     };
 
@@ -59,7 +59,7 @@ _UserUpdate _$UserUpdateFromJson(Map<String, dynamic> json) => _UserUpdate(
       address: json['address'] as String?,
       description: json['description'] as String?,
       password: json['password'] as String?,
-      imageUrl: json['imageUrl'] as String?,
+      imageUrl: json['image_url'] as String?,
     );
 
 Map<String, dynamic> _$UserUpdateToJson(_UserUpdate instance) =>
@@ -69,5 +69,5 @@ Map<String, dynamic> _$UserUpdateToJson(_UserUpdate instance) =>
       'address': instance.address,
       'description': instance.description,
       'password': instance.password,
-      'imageUrl': instance.imageUrl,
+      'image_url': instance.imageUrl,
     };

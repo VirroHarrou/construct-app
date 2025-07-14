@@ -5,13 +5,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'order.freezed.dart';
 part 'order.g.dart';
 
-@freezed
+@Freezed(copyWith: true)
 sealed class Order with _$Order {
   factory Order({
     required String id,
     required String title,
     String? description,
-    String? imageUrl,
+    @JsonKey(name: 'image_url') String? imageUrl,
+    @JsonKey(name: 'logo_url') String? logoUrl,
     String? status,
     required double price,
     required String address,
@@ -19,9 +20,9 @@ sealed class Order with _$Order {
     @JsonKey(name: 'end_time') required DateTime endTime,
     @JsonKey(name: 'user_id') required String userId,
     @JsonKey(name: 'views_count') @Default(0) int viewed,
-    @JsonKey(name: 'waiting_user_ids')
+    @JsonKey(name: 'connected_user_ids')
     @Default(<String>[])
-    List<String> waitingUserIds,
+    List<String> connectedUserIds,
   }) = _Order;
 
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
@@ -33,6 +34,7 @@ sealed class OrderCreate with _$OrderCreate {
     required String title,
     String? description,
     @JsonKey(name: 'image_url') String? imageUrl,
+    @JsonKey(name: 'logo_url') String? logoUrl,
     required double price,
     required String address,
     @JsonKey(name: 'begin_time') required DateTime beginTime,
@@ -49,6 +51,7 @@ sealed class OrderUpdate with _$OrderUpdate {
     String? title,
     String? description,
     @JsonKey(name: 'image_url') String? imageUrl,
+    @JsonKey(name: 'logo_url') String? logoUrl,
     double? price,
     String? address,
     @JsonKey(name: 'begin_time') DateTime? beginTime,
