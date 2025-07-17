@@ -4,6 +4,7 @@ import 'package:construct/presentation/screens/orders/orders_state.dart';
 import 'package:construct/presentation/screens/user/user_view.dart';
 import 'package:construct/presentation/widgets/order_card.dart';
 import 'package:construct/presentation/widgets/radio_widget.dart';
+import 'package:construct/services/api/order_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +14,23 @@ class OrdersView extends ConsumerWidget {
   const OrdersView({super.key});
 
   static const routeName = '/orders';
+
+  Future<void> navigateTo(
+    String orderId,
+    BuildContext context,
+    WidgetRef ref,
+    OrdersController controller,
+  ) async {
+    final order = await ref.read(orderServiceProvider).getOrder(orderId);
+    if (context.mounted) {
+      Navigator.of(context)
+          .pushNamed(
+            OrderDetailView.routeName,
+            arguments: order,
+          )
+          .then((_) => controller.refresh());
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,7 +43,7 @@ class OrdersView extends ConsumerWidget {
         child: CustomScrollView(
           slivers: [
             _buildAppBar(context, controller, state),
-            _buildOrderList(state, controller),
+            _buildOrderList(state, controller, ref),
           ],
         ),
       ),
@@ -137,7 +155,8 @@ class OrdersView extends ConsumerWidget {
     );
   }
 
-  Widget _buildOrderList(OrdersState state, OrdersController controller) {
+  Widget _buildOrderList(
+      OrdersState state, OrdersController controller, WidgetRef ref) {
     if (state.isLoading) {
       return SliverFillRemaining(
           child: Center(child: CircularProgressIndicator()));
@@ -167,12 +186,12 @@ class OrdersView extends ConsumerWidget {
                   isMy: state.sortedOrders[index].userId == state.user?.id,
                   maximize: true,
                   onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed(
-                          OrderDetailView.routeName,
-                          arguments: state.sortedOrders[index],
-                        )
-                        .then((_) => controller.refresh());
+                    navigateTo(
+                      state.sortedOrders[index].id,
+                      context,
+                      ref,
+                      controller,
+                    );
                   },
                 ),
               );

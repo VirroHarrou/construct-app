@@ -1,7 +1,9 @@
 import 'package:construct/domain/entities/order/order.dart';
+import 'package:construct/domain/entities/review/review.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/presentation/screens/order_detail/order_detail_state.dart';
 import 'package:construct/services/api/order_service.dart';
+import 'package:construct/services/api/review_service.dart';
 import 'package:construct/services/api/user_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +11,7 @@ class OrderDetailController
     extends AutoDisposeFamilyNotifier<OrderDetailState, Order> {
   late final OrderService _orderService = ref.read(orderServiceProvider);
   late final UserService _userService = ref.read(userServiceProvider);
+  late final ReviewService _reviewService = ref.read(reviewServiceProvider);
 
   @override
   OrderDetailState build(Order arg) {
@@ -27,7 +30,7 @@ class OrderDetailController
   }
 
   Future<void> loadData(Order order) async {
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, order: order);
 
     try {
       final user = await _userService.getUser(order.userId);
@@ -55,6 +58,38 @@ class OrderDetailController
       print(e);
     }
   }
+
+  Future<void> completeOrder() async {
+    final performer = state.connectedUsers.first;
+
+    final review = ReviewCreate(
+      rating: state.rating,
+      recipientId: performer.id,
+      content: state.content ?? '',
+    );
+    state = state.copyWith(isResponding: true);
+    try {
+      await _reviewService.createReview(review);
+
+      await _orderService.updateOrderStatus(
+        state.order.id,
+        status: 'завершен',
+      );
+
+      state = state.copyWith(isResponding: false, isCompletes: false);
+
+      await reloadOrder();
+    } catch (e) {
+      state = state.copyWith(isResponding: false);
+      print(e);
+    }
+  }
+
+  void toCompletesState() => state = state.copyWith(isCompletes: true);
+
+  void setRating(int num) => state = state.copyWith(rating: num);
+
+  void setContent(String content) => state = state.copyWith(content: content);
 
   Future<void> respondToOrder() async {
     final currentUser = state.me;

@@ -5,7 +5,6 @@ import 'package:construct/domain/entities/order/order.dart';
 import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/order_editor/order_editor_view.dart';
 import 'package:dart_extensions/dart_extensions.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class OrderCard extends StatelessWidget {
@@ -25,6 +24,12 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final icon = switch (order.status) {
+      'ожидание' => Icons.timer,
+      'в работе' => Icons.work_rounded,
+      'завершен' => Icons.lock,
+      _ => Icons.lock_open,
+    };
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(6.0),
@@ -32,7 +37,7 @@ class OrderCard extends StatelessWidget {
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: colorScheme.primaryContainer,
             boxShadow: [
               BoxShadow(
                 blurRadius: 15,
@@ -49,7 +54,7 @@ class OrderCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 child: order.logoUrl.isEmptyOrNull
                     ? Container(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: colorScheme.onSurfaceVariant,
                       )
                     : CachedNetworkImage(
                         width: 105,
@@ -94,12 +99,23 @@ class OrderCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("${order.price} руб."),
-                        Text(
-                          order.status?.capitalize() ?? 'Открыто',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 5,
+                          children: [
+                            Icon(
+                              icon,
+                              size: 20,
+                              color: colorScheme.primary,
+                            ),
+                            Text(
+                              order.status?.capitalize() ?? 'Открыто',
+                              style: TextStyle(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

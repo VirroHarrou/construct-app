@@ -71,23 +71,31 @@ class OrderDetailView extends ConsumerWidget {
           const SizedBox(height: 20),
           _buildOrderMetaRow1(context, order, colorScheme),
           const SizedBox(height: 12),
-          _buildOrderMetaRow2(context, order, colorScheme),
+          _buildOrderMetaRow2(context, state, colorScheme),
           const SizedBox(height: 20),
-          _buildUserInfo(state.user, context),
+          _buildCustomerInfo(state, context, colorScheme),
           const SizedBox(height: 20),
           _buildDescription(state, controller, context),
           if (state.me?.id != state.user?.id) ...[
             const SizedBox(height: 20),
-            _buildResponseButton(state, controller, context),
+            if (state.statusNum < 2)
+              _buildResponseButton(state, controller, context),
+            if (state.statusNum >= 2)
+              _buildRecipientList(state, context, controller),
           ],
-          if (state.order.status == 'завершен') ...[
-            const SizedBox(height: 20),
-            _buildReviewInput(colorScheme),
-          ],
-          if (state.me?.id == order.userId) ...[
+          if (state.me?.id == order.userId && !state.isCompletes) ...[
             const SizedBox(height: 20),
             _buildRecipientList(state, context, controller),
           ],
+          if (state.me?.id == order.userId &&
+              state.statusNum == 2 &&
+              !state.isCompletes) ...[
+            _buildCompleteButton(state, controller, context),
+          ],
+          if (state.isCompletes) ...[
+            const SizedBox(height: 20),
+            _buildReviewInput(colorScheme, controller, state),
+          ]
         ],
       ),
     );
@@ -163,21 +171,27 @@ class OrderDetailView extends ConsumerWidget {
 
   Widget _buildOrderMetaRow2(
     BuildContext context,
-    Order order,
+    OrderDetailState state,
     ColorScheme colorScheme,
   ) {
+    final icon = switch (state.statusNum) {
+      1 => Icons.timer,
+      2 => Icons.work_rounded,
+      3 => Icons.lock,
+      _ => Icons.lock_open,
+    };
     return Row(
       children: [
         _buildInfoRow(
           context,
           Icons.person,
-          S.of(context).viewsCount(order.viewed),
+          S.of(context).viewsCount(state.order.viewed),
         ),
         const Spacer(),
         _buildInfoRow(
           context,
-          Icons.lock_open,
-          order.status?.capitalize() ?? 'Открыто',
+          icon,
+          state.order.status?.capitalize() ?? 'Открыто',
           color: colorScheme.primary,
         ),
       ],
@@ -296,14 +310,48 @@ class OrderDetailView extends ConsumerWidget {
     );
   }
 
+  Widget _buildCustomerInfo(
+      OrderDetailState state, BuildContext context, ColorScheme colorScheme) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(child: _buildUserInfo(state.user, context)),
+        if (state.isMePerformer && state.statusNum < 3) ...[
+          const SizedBox(width: 10),
+          InkWell(
+            onTap: () => Navigator.pushNamed(
+              context,
+              ChatDetailView.routeName,
+              arguments: state.user,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                "Написать",
+                style: TextStyle(
+                  color: colorScheme.onPrimaryContainer,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildResponseButton(
     OrderDetailState state,
     OrderDetailController controller,
     BuildContext context,
   ) {
-    final canRespond = !state.hasResponded &&
-        state.order.status != 'завершен' &&
-        !state.isResponding;
+    final canRespond =
+        !state.hasResponded && state.statusNum < 2 && !state.isResponding;
 
     return ElevatedButton(
       onPressed: canRespond ? controller.respondToOrder : null,
@@ -321,17 +369,118 @@ class OrderDetailView extends ConsumerWidget {
     );
   }
 
-  Widget _buildReviewInput(ColorScheme colorScheme) {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Оставить отзыв...',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: colorScheme.primary, width: 0.5),
-        ),
+  Widget _buildCompleteButton(
+    OrderDetailState state,
+    OrderDetailController controller,
+    BuildContext context,
+  ) {
+    return ElevatedButton(
+      onPressed: () => controller.toCompletesState(),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).primaryColor,
+        minimumSize: const Size(double.infinity, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
       ),
-      maxLines: 5,
-      minLines: 1,
+      child: state.isResponding
+          ? const CircularProgressIndicator(color: Colors.white)
+          : Text(
+              'Закрыть заказ',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+    );
+  }
+
+  Widget _buildReviewInput(
+    ColorScheme colorScheme,
+    OrderDetailController controller,
+    OrderDetailState state,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          style: TextStyle(
+            fontSize: 12,
+          ),
+          onChanged: (value) => controller.setContent(value),
+          decoration: InputDecoration(
+            hintText: 'Напишите отзыв...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: colorScheme.primary,
+                width: 1,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: colorScheme.primary,
+                width: 1,
+              ),
+            ),
+          ),
+          maxLines: 5,
+          minLines: 1,
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () => controller.setRating(1),
+              icon: Icon(
+                state.rating >= 1 ? Icons.star_outlined : Icons.star_border,
+                color: colorScheme.primary,
+              ),
+            ),
+            IconButton(
+              onPressed: () => controller.setRating(2),
+              icon: Icon(
+                state.rating >= 2 ? Icons.star_outlined : Icons.star_border,
+                color: colorScheme.primary,
+              ),
+            ),
+            IconButton(
+              onPressed: () => controller.setRating(3),
+              icon: Icon(
+                state.rating >= 3 ? Icons.star_outlined : Icons.star_border,
+                color: colorScheme.primary,
+              ),
+            ),
+            IconButton(
+              onPressed: () => controller.setRating(4),
+              icon: Icon(
+                state.rating >= 4 ? Icons.star_outlined : Icons.star_border,
+                color: colorScheme.primary,
+              ),
+            ),
+            IconButton(
+              onPressed: () => controller.setRating(5),
+              icon: Icon(
+                state.rating >= 5 ? Icons.star_outlined : Icons.star_border,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        state.isResponding
+            ? Center(child: CircularProgressIndicator())
+            : TextButton(
+                onPressed: controller.completeOrder,
+                style: TextButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                ),
+                child: Text(
+                  'Отправить',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+              ),
+      ],
     );
   }
 
@@ -342,7 +491,6 @@ class OrderDetailView extends ConsumerWidget {
   ) {
     if (state.connectedUsers.isEmpty) return const SizedBox();
 
-    final isWorking = state.order.status == 'в работе';
     final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
@@ -350,9 +498,15 @@ class OrderDetailView extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          isWorking ? "Выполняет:" : "Отклики:",
+          state.statusNum >= 2
+              ? state.statusNum == 3
+                  ? "Выполнил:"
+                  : "Выполняет:"
+              : "Отклики:",
           style: TextStyle(
-              color: colorScheme.primary, fontWeight: FontWeight.w600),
+            color: colorScheme.primary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         ListView.builder(
@@ -361,8 +515,9 @@ class OrderDetailView extends ConsumerWidget {
           itemCount: state.connectedUsers.length,
           itemBuilder: (_, index) => _buildRecipientItem(
             state.connectedUsers[index],
-            isWorking,
+            state.statusNum == 2,
             controller,
+            state,
             context,
           ),
         ),
@@ -374,6 +529,7 @@ class OrderDetailView extends ConsumerWidget {
     User user,
     bool isWorking,
     OrderDetailController controller,
+    OrderDetailState state,
     BuildContext context,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -389,31 +545,34 @@ class OrderDetailView extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(child: _buildUserInfo(user, context)),
-          const SizedBox(width: 10),
-          InkWell(
-            onTap: () => isWorking
-                ? Navigator.pushNamed(
-                    context,
-                    ChatDetailView.routeName,
-                    arguments: user,
-                  )
-                : controller.selectPerformer(user.id),
-            child: Container(
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                isWorking ? "Написать" : "Выбрать",
-                style: TextStyle(
-                  color: colorScheme.onPrimaryContainer,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+          if (state.isMeCustomer && state.statusNum != 3) ...[
+            const SizedBox(width: 10),
+            InkWell(
+              onTap: () => isWorking
+                  ? Navigator.pushNamed(
+                      context,
+                      ChatDetailView.routeName,
+                      arguments: user,
+                    )
+                  : controller.selectPerformer(user.id),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  isWorking ? "Написать" : "Выбрать",
+                  style: TextStyle(
+                    color: colorScheme.onPrimaryContainer,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

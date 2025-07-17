@@ -12,10 +12,10 @@ sealed class Review with _$Review {
     required String id,
     required String content,
     required int rating,
-    @JsonKey(name: 'recepient_id') required String recepientId,
+    @JsonKey(name: 'recipient_id') required String recipientId,
     @JsonKey(name: 'sender_id') required String senderId,
     @JsonKey(name: 'created_at') required DateTime createdAt,
-    Order? order, // Дополнительная информация о заказе
+    Order? order,
   }) = _Review;
 
   factory Review.fromJson(Map<String, dynamic> json) => _$ReviewFromJson(json);
@@ -26,7 +26,7 @@ sealed class ReviewCreate with _$ReviewCreate {
   factory ReviewCreate({
     required String content,
     required int rating,
-    @JsonKey(name: 'recepient_id') required String recepientId,
+    @JsonKey(name: 'recipient_id') required String recipientId,
   }) = _ReviewCreate;
 
   factory ReviewCreate.fromJson(Map<String, dynamic> json) =>
