@@ -23,8 +23,12 @@ class ChatMessages extends _$ChatMessages {
     ];
   }
 
+  void _removeMessage(String messageId) {
+    state = state.where((msg) => msg.id != messageId).toList();
+  }
+
   void loadHistory(List<ChatMessageResponse> history) {
-    state = history.map((item) => item).toList();
+    state = history.where((item) => !item.isDeleted).toList();
   }
 }
 
@@ -59,7 +63,7 @@ class ChatController extends _$ChatController {
     final messagesNotifier = ref.read(chatMessagesProvider.notifier);
 
     if (message.isDeleted) {
-      messagesNotifier._updateMessage(message);
+      messagesNotifier._removeMessage(message.id);
     } else {
       final exists =
           ref.read(chatMessagesProvider).any((m) => m.id == message.id);

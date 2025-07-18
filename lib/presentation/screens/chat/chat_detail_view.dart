@@ -21,6 +21,8 @@ class ChatDetailView extends ConsumerStatefulWidget {
 class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
   final TextEditingController _messageController = TextEditingController();
   ChatMessageResponse? _messageResponse;
+  ChatMessageResponse? _editingMessage;
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -38,16 +40,28 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
   });
 
   void _sendMessage() {
+    final token = ref.read(tokenProvider).value!;
+    final action = ChatMessageAction.send(
+      content: _messageController.text,
+      recipientId: widget.user.id,
+    );
+    ref
+        .read(chatControllerProvider(token, widget.user.id).notifier)
+        .sendMessage(action);
+    _messageController.clear();
+  }
+
+  void _messageTask() {
     if (_messageController.text.isNotEmpty) {
-      final token = ref.read(tokenProvider).value!;
-      final action = ChatMessageAction.send(
-        content: _messageController.text,
-        recipientId: widget.user.id,
-      );
-      ref
-          .read(chatControllerProvider(token, widget.user.id).notifier)
-          .sendMessage(action);
-      _messageController.clear();
+      if (_isEditing && _editingMessage != null) {
+        _updateMessage(_editingMessage!.id);
+        setState(() {
+          _isEditing = false;
+          _editingMessage = null;
+        });
+      } else {
+        _sendMessage();
+      }
     }
   }
 
@@ -61,15 +75,14 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
 
   void _updateMessage(String messageId) {
     final token = ref.read(tokenProvider).value!;
-    if (_messageController.text.isNotEmpty) {
-      final action = ChatMessageAction.edit(
-        messageId: messageId,
-        content: _messageController.text,
-      );
-      ref
-          .read(chatControllerProvider(token, widget.user.id).notifier)
-          .sendMessage(action);
-    }
+    final action = ChatMessageAction.edit(
+      messageId: messageId,
+      content: _messageController.text,
+    );
+    ref
+        .read(chatControllerProvider(token, widget.user.id).notifier)
+        .sendMessage(action);
+    _messageController.clear();
   }
 
   @override
@@ -142,9 +155,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
                                   message,
                                   isMe: isMe,
                                   onLongPress: isMe
-                                      ? (content) {
-                                          /* Действия при долгом нажатии */
-                                        }
+                                      ? (message) => _showMessageActionMenu(
+                                          context, message)
                                       : null,
                                   showTime: showTime,
                                   header: !isMe
@@ -176,6 +188,56 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
     );
   }
 
+  void _showMessageActionMenu(
+      BuildContext context, ChatMessageResponse message) {
+    final colorScheme = Theme.of(context).colorScheme;
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text(
+                  'Сообщение:',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: SelectableText(
+                  message.content,
+                  style: TextStyle(
+                    color: colorScheme.secondary,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.edit, color: colorScheme.primary),
+                title: const Text('Редактировать'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _isEditing = true;
+                    _editingMessage = message;
+                    _messageController.text = message.content;
+                  });
+                  // FocusScope.of(context).requestFocus(_focusNode);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete, color: Colors.red[600]),
+                title: const Text('Удалить'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteMessage(message.id);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Container _buildInput(ColorScheme colorScheme) {
     return Container(
       color: colorScheme.primaryContainer,
@@ -183,6 +245,17 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
       child: Row(
         spacing: 10,
         children: [
+          if (_isEditing)
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                setState(() {
+                  _isEditing = false;
+                  _editingMessage = null;
+                  _messageController.clear();
+                });
+              },
+            ),
           Expanded(
             child: TextField(
               style: TextStyle(
@@ -212,10 +285,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailView> {
             ),
           ),
           IconButton.filled(
-            icon: Icon(
-              Icons.arrow_upward_outlined,
-            ),
-            onPressed: _sendMessage,
+            icon: Icon(_isEditing ? Icons.check : Icons.arrow_upward_outlined),
+            onPressed: _messageTask,
           ),
         ],
       ),

@@ -7,7 +7,7 @@ class MessageView extends StatelessWidget {
   final ChatMessageResponse messageResponse;
   final Widget? header;
   final bool showTime;
-  final ValueSetter<String>? onLongPress;
+  final ValueSetter<ChatMessageResponse>? onLongPress;
   final bool isMe;
 
   const MessageView(
@@ -30,9 +30,8 @@ class MessageView extends StatelessWidget {
           customBorder: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          onLongPress: onLongPress != null
-              ? () => onLongPress!(messageResponse.content)
-              : null,
+          onLongPress:
+              onLongPress != null ? () => onLongPress!(messageResponse) : null,
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -56,21 +55,29 @@ class MessageView extends StatelessWidget {
                   header!,
                   const SizedBox(height: 5),
                 ],
-                SelectableText(
-                  messageResponse.content,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                    fontFamily: "Inter",
-                  ),
-                ),
+                isMe
+                    ? Text(
+                        messageResponse.content,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          fontFamily: "Inter",
+                        ),
+                      )
+                    : SelectableText(
+                        messageResponse.content,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          fontFamily: "Inter",
+                        ),
+                      ),
                 if (messageResponse.isEdited) ...[
                   Text(
                     "изменено",
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 10,
-                      fontStyle: FontStyle.italic,
                     ),
                   ),
                 ]
