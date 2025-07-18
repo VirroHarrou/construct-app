@@ -21,19 +21,15 @@ _getRoutes(RouteSettings routeSettings, SessionExpiredHandler sessionHandler) {
         case UserEditView.routeName:
           return UserEditView(routeSettings.arguments as User);
         case OrderEditorView.routeName:
-          return OrderEditorView(
-            order: routeSettings.arguments as Order?,
-          );
+          return OrderEditorView(order: routeSettings.arguments as Order?);
         case OrderDetailView.routeName:
-          return OrderDetailView(
-            order: routeSettings.arguments as Order,
-          );
+          return OrderDetailView(order: routeSettings.arguments as Order);
         case ChatView.routeName:
           return ChatView();
         case ChatDetailView.routeName:
-          return ChatDetailView(
-            user: routeSettings.arguments as User,
-          );
+          return ChatDetailView(user: routeSettings.arguments as User);
+        case VerificationView.routeName:
+          return VerificationView(user: routeSettings.arguments as User);
 
         default:
           return const OrderEditorView(order: null);

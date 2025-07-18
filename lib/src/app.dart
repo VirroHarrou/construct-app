@@ -11,6 +11,7 @@ import 'package:construct/presentation/screens/orders/orders_view.dart';
 import 'package:construct/presentation/screens/sign_up/sing_up_view.dart';
 import 'package:construct/presentation/screens/user/user_edit.dart';
 import 'package:construct/presentation/screens/user/user_view.dart';
+import 'package:construct/presentation/screens/verification/verification_view.dart';
 import 'package:construct/services/auth_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

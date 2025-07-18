@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:construct/domain/entities/review/review.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/presentation/screens/user/user_edit.dart';
+import 'package:construct/presentation/screens/verification/verification_view.dart';
 import 'package:construct/services/api/auth_service.dart';
 import 'package:construct/services/api/review_service.dart';
 import 'package:construct/services/api/user_service.dart';
@@ -192,7 +193,8 @@ class _UserViewState extends ConsumerState<UserView> {
                   ),
                 ),
               ),
-              onTap: () => ref.read(authServiceProvider).logout(),
+              onTap: () async => await Navigator.of(context)
+                  .pushNamed(VerificationView.routeName, arguments: user!),
             ),
           ],
         )
