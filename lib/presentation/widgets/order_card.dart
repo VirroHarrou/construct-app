@@ -53,12 +53,10 @@ class OrderCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: order.logoUrl.isEmptyOrNull
-                    ? Container(
-                        color: colorScheme.onSurfaceVariant,
-                      )
+                    ? const SizedBox.shrink()
                     : CachedNetworkImage(
                         width: 105,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         imageUrl: order.logoUrl!,
                         progressIndicatorBuilder: (_, __, progress) => Center(
                           child: CircularProgressIndicator(
