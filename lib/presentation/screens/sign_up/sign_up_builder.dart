@@ -5,6 +5,7 @@ import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/screens/sign_in/sign_in_view.dart';
 import 'package:construct/presentation/widgets/primary_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -210,6 +211,11 @@ class _SignUpBuilderState extends ConsumerState<SignUpBuilder> {
           textEditingController: innController,
           label: 'ИНН',
           hintText: '123456789000',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(12),
+          ],
         ),
         if (errorMessage != null) ...[
           Text(

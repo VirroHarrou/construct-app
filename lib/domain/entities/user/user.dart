@@ -16,7 +16,6 @@ sealed class User with _$User {
     required String inn,
     String? description,
     @JsonKey(name: 'image_url') String? imageUrl,
-    @JsonKey(name: 'company_id') String? companyId,
     Company? company,
   }) = _User;
 
@@ -31,7 +30,6 @@ sealed class UserCreate with _$UserCreate {
     required String address,
     required String inn,
     @JsonKey(name: 'image_url') String? imageUrl,
-    @JsonKey(name: 'company_id') String? companyId,
     required String password,
   }) = _UserCreate;
 

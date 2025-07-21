@@ -145,7 +145,7 @@ class OrdersView extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: RadioWidget(
-                onChanged: (value) => controller.sortOrders(value),
+                onChanged: (value) => controller.setSorting(value),
               ),
             ),
           ),

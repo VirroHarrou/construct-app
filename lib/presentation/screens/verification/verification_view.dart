@@ -1,7 +1,12 @@
+import 'package:construct/domain/entities/company/company.dart';
 import 'package:construct/domain/entities/user/user.dart';
 import 'package:construct/generated/l10n.dart';
 import 'package:construct/presentation/widgets/primary_text_field.dart';
+import 'package:construct/services/api/company_service.dart';
+import 'package:construct/services/api/user_service.dart';
+import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VerificationView extends ConsumerStatefulWidget {
@@ -19,26 +24,58 @@ class _VerificationViewState extends ConsumerState<VerificationView> {
   final _fcsController = TextEditingController();
   final _addressController = TextEditingController();
   final _innController = TextEditingController();
+  String? errorMessage;
 
   @override
   void initState() {
     super.initState();
     _fcsController.text = widget.user.fio;
     _addressController.text = widget.user.address;
-    _innController.text = widget.user.inn;
+    _titleController.text = widget.user.company?.name ?? '';
+    _innController.text = widget.user.company?.inn ?? '';
   }
 
   Future<void> submit() async {
-    // final userUpdate = UserUpdate(
-    //   fio: _fcsController.text,
-    //   phone: widget.user.phone,
-    //   address: _addressController.text,
-    //   imageUrl: widget.user.imageUrl,
-    //   description: widget.user.description,
-    // );
+    if (_innController.text.length != 10) {
+      setState(() {
+        errorMessage = 'ИНН должен быть длинной 10 символов';
+      });
+      return;
+    }
+
+    if (!_titleController.text.isNotBlank) {
+      setState(() {
+        errorMessage = 'Название организации не должно быть пустым';
+      });
+      return;
+    }
+
+    final userUpdate = UserUpdate(
+      fio: _fcsController.text,
+      phone: widget.user.phone,
+      address: _addressController.text,
+      imageUrl: widget.user.imageUrl,
+      description: widget.user.description,
+    );
+
     try {
-      // await ref.read(userServiceProvider).updateUser(userUpdate);
-    } catch (_) {}
+      await ref.read(userServiceProvider).updateUser(userUpdate);
+      if (widget.user.company == null) {
+        final company = CompanyCreate(
+            name: _titleController.text.trim(), inn: _innController.text);
+        await ref.read(companyServiceProvider).createCompany(company);
+      } else {
+        final company = CompanyUpdate(
+            name: _titleController.text, inn: _innController.text);
+        await ref
+            .read(companyServiceProvider)
+            .updateCompany(company, widget.user.company!.id);
+      }
+      final user = ref.read(userServiceProvider).getUser(widget.user.id);
+      if (context.mounted) Navigator.of(context).pop(user);
+    } catch (e) {
+      setState(() => errorMessage = e.toString());
+    }
   }
 
   @override
@@ -89,10 +126,14 @@ class _VerificationViewState extends ConsumerState<VerificationView> {
                   textEditingController: _titleController,
                   label: 'Название организации:',
                   hintText: 'ЗАО “бещёки”',
+                  maxLines: 3,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(255),
+                  ],
                 ),
                 PrimaryTextField(
                   textEditingController: _fcsController,
-                  label: S.of(context).FCs,
+                  label: 'Руководитель ${S.of(context).FCs}',
                   hintText: 'Жуков Максим Леонидович',
                 ),
                 PrimaryTextField(
@@ -103,8 +144,19 @@ class _VerificationViewState extends ConsumerState<VerificationView> {
                 PrimaryTextField(
                   textEditingController: _innController,
                   label: 'ИНН:',
-                  hintText: '123456789000',
+                  hintText: '1234567890',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                 ),
+                if (errorMessage != null) ...[
+                  SelectableText(
+                    errorMessage!,
+                    style: TextStyle(color: colorScheme.error),
+                  ),
+                ],
                 const SizedBox(height: 10),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

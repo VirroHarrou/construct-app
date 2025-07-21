@@ -224,7 +224,7 @@ class _UserViewState extends ConsumerState<UserView> {
                         spacing: 10,
                         children: [
                           Text(
-                            user!.fio,
+                            user!.company?.name ?? user!.fio,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                             ),

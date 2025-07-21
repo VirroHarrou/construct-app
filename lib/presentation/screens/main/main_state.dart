@@ -1,38 +1,43 @@
 import 'package:construct/domain/entities/order/order.dart';
 import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/presentation/widgets/sortable_button.dart';
 
-class OrdersState {
+class MainState {
   final User? user;
   final List<Order> orders;
-  final List<Order> sortedOrders;
-  final String? sort;
+  final List<SortableItem> sortItems;
   final bool isLoading;
+  final bool hasMore;
+  final int page;
   final bool isRefreshing;
 
-  OrdersState({
+  MainState({
     this.user,
-    this.orders = const [],
-    this.sortedOrders = const [],
-    this.isLoading = true,
+    required this.orders,
+    required this.sortItems,
+    this.isLoading = false,
+    this.hasMore = true,
+    this.page = 0,
     this.isRefreshing = false,
-    this.sort,
   });
 
-  OrdersState copyWith({
+  MainState copyWith({
     User? user,
     List<Order>? orders,
-    List<Order>? sortedOrders,
+    List<SortableItem>? sortItems,
     bool? isLoading,
+    bool? hasMore,
+    int? page,
     bool? isRefreshing,
-    String? sort,
   }) {
-    return OrdersState(
+    return MainState(
       user: user ?? this.user,
       orders: orders ?? this.orders,
-      sortedOrders: sortedOrders ?? this.sortedOrders,
+      sortItems: sortItems ?? this.sortItems,
       isLoading: isLoading ?? this.isLoading,
+      hasMore: hasMore ?? this.hasMore,
+      page: page ?? this.page,
       isRefreshing: isRefreshing ?? this.isRefreshing,
-      sort: sort ?? this.sort,
     );
   }
 }

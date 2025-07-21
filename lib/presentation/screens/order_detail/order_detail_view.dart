@@ -90,6 +90,7 @@ class OrderDetailView extends ConsumerWidget {
           if (state.me?.id == order.userId &&
               state.statusNum == 2 &&
               !state.isCompletes) ...[
+            const SizedBox(height: 20),
             _buildCompleteButton(state, controller, context),
           ],
           if (state.isCompletes) ...[
@@ -235,7 +236,7 @@ class OrderDetailView extends ConsumerWidget {
             spacing: 5,
             children: [
               Text(
-                user.fio,
+                user.company?.name ?? user.fio,
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                 overflow: TextOverflow.ellipsis,
               ),

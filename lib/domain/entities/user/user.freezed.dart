@@ -23,8 +23,6 @@ mixin _$User {
   String? get description;
   @JsonKey(name: 'image_url')
   String? get imageUrl;
-  @JsonKey(name: 'company_id')
-  String? get companyId;
   Company? get company;
 
   /// Serializes this User to a JSON map.
@@ -44,19 +42,17 @@ mixin _$User {
                 other.description == description) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
-            (identical(other.companyId, companyId) ||
-                other.companyId == companyId) &&
             (identical(other.company, company) || other.company == company));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, fio, phone, address, inn,
-      description, imageUrl, companyId, company);
+      description, imageUrl, company);
 
   @override
   String toString() {
-    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, description: $description, imageUrl: $imageUrl, companyId: $companyId, company: $company)';
+    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, description: $description, imageUrl: $imageUrl, company: $company)';
   }
 }
 
@@ -71,7 +67,6 @@ class _User implements User {
       required this.inn,
       this.description,
       @JsonKey(name: 'image_url') this.imageUrl,
-      @JsonKey(name: 'company_id') this.companyId,
       this.company});
   factory _User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
@@ -90,9 +85,6 @@ class _User implements User {
   @override
   @JsonKey(name: 'image_url')
   final String? imageUrl;
-  @override
-  @JsonKey(name: 'company_id')
-  final String? companyId;
   @override
   final Company? company;
 
@@ -117,19 +109,17 @@ class _User implements User {
                 other.description == description) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
-            (identical(other.companyId, companyId) ||
-                other.companyId == companyId) &&
             (identical(other.company, company) || other.company == company));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, fio, phone, address, inn,
-      description, imageUrl, companyId, company);
+      description, imageUrl, company);
 
   @override
   String toString() {
-    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, description: $description, imageUrl: $imageUrl, companyId: $companyId, company: $company)';
+    return 'User(id: $id, fio: $fio, phone: $phone, address: $address, inn: $inn, description: $description, imageUrl: $imageUrl, company: $company)';
   }
 }
 
@@ -141,8 +131,6 @@ mixin _$UserCreate {
   String get inn;
   @JsonKey(name: 'image_url')
   String? get imageUrl;
-  @JsonKey(name: 'company_id')
-  String? get companyId;
   String get password;
 
   /// Serializes this UserCreate to a JSON map.
@@ -159,20 +147,18 @@ mixin _$UserCreate {
             (identical(other.inn, inn) || other.inn == inn) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
-            (identical(other.companyId, companyId) ||
-                other.companyId == companyId) &&
             (identical(other.password, password) ||
                 other.password == password));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, fio, phone, address, inn, imageUrl, companyId, password);
+  int get hashCode =>
+      Object.hash(runtimeType, fio, phone, address, inn, imageUrl, password);
 
   @override
   String toString() {
-    return 'UserCreate(fio: $fio, phone: $phone, address: $address, inn: $inn, imageUrl: $imageUrl, companyId: $companyId, password: $password)';
+    return 'UserCreate(fio: $fio, phone: $phone, address: $address, inn: $inn, imageUrl: $imageUrl, password: $password)';
   }
 }
 
@@ -185,7 +171,6 @@ class _UserCreate implements UserCreate {
       required this.address,
       required this.inn,
       @JsonKey(name: 'image_url') this.imageUrl,
-      @JsonKey(name: 'company_id') this.companyId,
       required this.password});
   factory _UserCreate.fromJson(Map<String, dynamic> json) =>
       _$UserCreateFromJson(json);
@@ -201,9 +186,6 @@ class _UserCreate implements UserCreate {
   @override
   @JsonKey(name: 'image_url')
   final String? imageUrl;
-  @override
-  @JsonKey(name: 'company_id')
-  final String? companyId;
   @override
   final String password;
 
@@ -225,20 +207,18 @@ class _UserCreate implements UserCreate {
             (identical(other.inn, inn) || other.inn == inn) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
-            (identical(other.companyId, companyId) ||
-                other.companyId == companyId) &&
             (identical(other.password, password) ||
                 other.password == password));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, fio, phone, address, inn, imageUrl, companyId, password);
+  int get hashCode =>
+      Object.hash(runtimeType, fio, phone, address, inn, imageUrl, password);
 
   @override
   String toString() {
-    return 'UserCreate(fio: $fio, phone: $phone, address: $address, inn: $inn, imageUrl: $imageUrl, companyId: $companyId, password: $password)';
+    return 'UserCreate(fio: $fio, phone: $phone, address: $address, inn: $inn, imageUrl: $imageUrl, password: $password)';
   }
 }
 

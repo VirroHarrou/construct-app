@@ -56,7 +56,7 @@ class OrderCard extends StatelessWidget {
                     ? const SizedBox.shrink()
                     : CachedNetworkImage(
                         width: 105,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.cover,
                         imageUrl: order.logoUrl!,
                         progressIndicatorBuilder: (_, __, progress) => Center(
                           child: CircularProgressIndicator(

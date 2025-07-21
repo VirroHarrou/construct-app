@@ -1,34 +1,10 @@
 import 'package:construct/domain/entities/order/order.dart';
-import 'package:construct/domain/entities/user/user.dart';
+import 'package:construct/presentation/screens/main/main_state.dart';
 import 'package:construct/presentation/widgets/sortable_button.dart';
 import 'package:construct/services/api/order_service.dart';
 import 'package:construct/services/api/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class MainState {
-  final User? user;
-  final List<Order> orders;
-  final List<SortableItem> sortItems;
-
-  MainState({
-    this.user,
-    required this.orders,
-    required this.sortItems,
-  });
-
-  MainState copyWith({
-    User? user,
-    List<Order>? orders,
-    List<SortableItem>? sortItems,
-  }) {
-    return MainState(
-      user: user ?? this.user,
-      orders: orders ?? this.orders,
-      sortItems: sortItems ?? this.sortItems,
-    );
-  }
-}
 
 final mainNotifierProvider =
     StateNotifierProvider<MainNotifier, MainState>((ref) {
@@ -37,12 +13,14 @@ final mainNotifierProvider =
 
 class MainNotifier extends StateNotifier<MainState> {
   final Ref ref;
+  late final _orderService = ref.read(orderServiceProvider);
+  late final _userService = ref.read(userServiceProvider);
 
   MainNotifier(this.ref)
       : super(MainState(
           user: null,
           orders: [],
-          sortItems: [
+          sortItems: const [
             SortableItem(
                 icon: Icons.date_range_outlined,
                 label: "Дата",
@@ -63,26 +41,73 @@ class MainNotifier extends StateNotifier<MainState> {
                 icon: Icons.task_sharp, label: "Отклики", sortOrder: 'null'),
           ],
         )) {
-    loadData();
+    refresh();
   }
 
-  Future<void> loadData() async {
-    await getMe();
-    await loadOrders();
+  Future<void> refresh() async {
+    getMe();
+    state = state.copyWith(
+      isRefreshing: true,
+      page: 0,
+      hasMore: true,
+    );
+
+    try {
+      final orders = await _fetchOrders();
+      state = state.copyWith(
+        orders: orders,
+        isRefreshing: false,
+        hasMore: orders.length == 20, // Предполагаем, что limit=20
+      );
+    } catch (e) {
+      state = state.copyWith(isRefreshing: false);
+      rethrow;
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+
+    state = state.copyWith(isLoading: true);
+    try {
+      final nextPage = state.page + 1;
+      final newOrders = await _fetchOrders(page: nextPage);
+
+      state = state.copyWith(
+        orders: [...state.orders, ...newOrders],
+        isLoading: false,
+        page: nextPage,
+        hasMore: newOrders.length == 20, // Предполагаем, что limit=20
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      rethrow;
+    }
+  }
+
+  Future<List<Order>> _fetchOrders({int page = 0}) async {
+    return await _orderService.getAllOrders(
+      offset: page * 20,
+      limit: 20,
+    );
+  }
+
+  void updateOrder(Order updatedOrder) {
+    final index = state.orders.indexWhere((o) => o.id == updatedOrder.id);
+    if (index != -1) {
+      final newOrders = List<Order>.from(state.orders);
+      newOrders[index] = updatedOrder;
+      state = state.copyWith(orders: newOrders);
+    }
   }
 
   Future<void> getMe() async {
     try {
-      final user = await ref.read(userServiceProvider).getMe();
+      final user = await _userService.getMe();
       state = state.copyWith(user: user);
     } catch (e) {
       print(e);
     }
-  }
-
-  Future<void> loadOrders() async {
-    final data = await ref.read(orderServiceProvider).getAllOrders();
-    state = state.copyWith(orders: data);
   }
 
   void sortOrders() {
@@ -131,6 +156,10 @@ class MainNotifier extends StateNotifier<MainState> {
   void updateSortItem(int index) {
     final newSortItems = List<SortableItem>.from(state.sortItems);
     final currentOrder = newSortItems[index].sortOrder;
+
+    for (int i = 0; i < newSortItems.length; i++) {
+      newSortItems[i] = newSortItems[i].copyWith(sortOrder: 'null');
+    }
 
     if (currentOrder == 'null') {
       newSortItems[index] = newSortItems[index].copyWith(sortOrder: 'asc');

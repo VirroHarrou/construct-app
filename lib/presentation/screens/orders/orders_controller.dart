@@ -39,9 +39,15 @@ class OrdersController extends StateNotifier<OrdersState> {
         sortedOrders: data,
         isRefreshing: false,
       );
+      sortOrders();
     } catch (_) {
       state = state.copyWith(isRefreshing: false);
     }
+  }
+
+  void setSorting(String value) {
+    state = state.copyWith(sort: value);
+    sortOrders();
   }
 
   Future<void> loadOrders() async {
@@ -57,10 +63,10 @@ class OrdersController extends StateNotifier<OrdersState> {
     }
   }
 
-  void sortOrders(String sort) {
+  void sortOrders() {
     if (state.user == null) return;
 
-    final newSortedOrders = switch (sort) {
+    final newSortedOrders = switch (state.sort) {
       "Я заказчик" =>
         state.orders.where((o) => o.userId == state.user!.id).toList(),
       "Я исполнитель" =>

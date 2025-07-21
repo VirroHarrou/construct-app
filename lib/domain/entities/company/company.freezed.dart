@@ -15,8 +15,9 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Company {
-  String? get id;
-  String? get title;
+  String get id;
+  String get name;
+  String get inn;
 
   /// Serializes this Company to a JSON map.
   Map<String, dynamic> toJson();
@@ -27,30 +28,33 @@ mixin _$Company {
         (other.runtimeType == runtimeType &&
             other is Company &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.title, title) || other.title == title));
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.inn, inn) || other.inn == inn));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title);
+  int get hashCode => Object.hash(runtimeType, id, name, inn);
 
   @override
   String toString() {
-    return 'Company(id: $id, title: $title)';
+    return 'Company(id: $id, name: $name, inn: $inn)';
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _Company implements Company {
-  _Company({this.id, this.title});
+  _Company({required this.id, required this.name, required this.inn});
   factory _Company.fromJson(Map<String, dynamic> json) =>
       _$CompanyFromJson(json);
 
   @override
-  final String? id;
+  final String id;
   @override
-  final String? title;
+  final String name;
+  @override
+  final String inn;
 
   @override
   Map<String, dynamic> toJson() {
@@ -65,16 +69,147 @@ class _Company implements Company {
         (other.runtimeType == runtimeType &&
             other is _Company &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.title, title) || other.title == title));
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.inn, inn) || other.inn == inn));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title);
+  int get hashCode => Object.hash(runtimeType, id, name, inn);
 
   @override
   String toString() {
-    return 'Company(id: $id, title: $title)';
+    return 'Company(id: $id, name: $name, inn: $inn)';
+  }
+}
+
+/// @nodoc
+mixin _$CompanyCreate {
+  String get name;
+  String get inn;
+
+  /// Serializes this CompanyCreate to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CompanyCreate &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.inn, inn) || other.inn == inn));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, name, inn);
+
+  @override
+  String toString() {
+    return 'CompanyCreate(name: $name, inn: $inn)';
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _CompanyCreate implements CompanyCreate {
+  _CompanyCreate({required this.name, required this.inn});
+  factory _CompanyCreate.fromJson(Map<String, dynamic> json) =>
+      _$CompanyCreateFromJson(json);
+
+  @override
+  final String name;
+  @override
+  final String inn;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$CompanyCreateToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CompanyCreate &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.inn, inn) || other.inn == inn));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, name, inn);
+
+  @override
+  String toString() {
+    return 'CompanyCreate(name: $name, inn: $inn)';
+  }
+}
+
+/// @nodoc
+mixin _$CompanyUpdate {
+  String? get name;
+  String? get inn;
+
+  /// Serializes this CompanyUpdate to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CompanyUpdate &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.inn, inn) || other.inn == inn));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, name, inn);
+
+  @override
+  String toString() {
+    return 'CompanyUpdate(name: $name, inn: $inn)';
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _CompanyUpdate implements CompanyUpdate {
+  _CompanyUpdate({this.name, this.inn});
+  factory _CompanyUpdate.fromJson(Map<String, dynamic> json) =>
+      _$CompanyUpdateFromJson(json);
+
+  @override
+  final String? name;
+  @override
+  final String? inn;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$CompanyUpdateToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CompanyUpdate &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.inn, inn) || other.inn == inn));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, name, inn);
+
+  @override
+  String toString() {
+    return 'CompanyUpdate(name: $name, inn: $inn)';
   }
 }
 
