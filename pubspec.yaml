@@ -20,6 +20,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   flutter_secure_storage: ^9.2.4
   flutter_svg: ^2.1.0
+  flutter_windowmanager: ^0.2.0
   freezed_annotation: ^3.0.0
   http: ^1.4.0
   image_picker: ^1.1.2
